@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Order Successful - RailBite BD</title>
+    <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+    <div class="back-button-fixed" onclick="goBack()">
+        <span class="arrow">←</span>
+        <span>Back</span>
+    </div>
+    <!-- Navigation -->
+    <nav class="navbar">
+        <div class="container">
+            <div class="nav-wrapper">
+                <div class="logo" onclick="window.location.href='index.html'">
+                    <span>🍽️</span>
+                    <span>RailBite</span>
+                </div>
+                <ul class="nav-menu" id="navMenu">
+                    <li><a href="index.html">Home</a></li>
+                    <li><a href="about.html">About Us</a></li>
+                    <li><a href="contact.html">Contact</a></li>
+                </ul>
+                <div class="cart-icon" onclick="window.location.href='cart.html'">
+                    🛒
+                    <span class="cart-badge" id="cartCount">0</span>
+                </div>
+                <div class="user-icon" onclick="window.location.href='profile.html'" style="font-size: 1.8rem; cursor: pointer; margin-left: 1rem;">
+                    👤
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Success Page -->
+    <div class="status-page">
+        <div class="status-container">
+            <div class="status-icon success">
+                ✓
+            </div>
+            <h1 class="status-title">Order Placed Successfully!</h1>
+            <p class="status-message">
+                Thank you for your order. You'll receive a confirmation SMS shortly.
+            </p>
+
+            <div class="order-info">
+                <p style="color: var(--text-gray); margin-bottom: 0.5rem;">Order Number</p>
+                <p class="order-number" id="orderNumber">#RB132953</p>
+                <p style="color: var(--text-gray); margin-top: 1rem; margin-bottom: 0.5rem;">Estimated Delivery</p>
+                <p style="font-size: 1.2rem; font-weight: 600;">30-45 minutes to your seat</p>
+            </div>
+
+            <a href="index.html" class="btn btn-primary btn-block">Order Again</a>
+        </div>
+    </div>
+
+    <script src="js/main.js"></script>
+</body>
+</html>

@@ -1,0 +1,106 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Your Cart - RailBite BD</title>
+    <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+    <div class="back-button-fixed" onclick="goBack()">
+        <span class="arrow">←</span>
+        <span>Back</span>
+    </div>
+    <!-- Navigation -->
+    <nav class="navbar">
+        <div class="container">
+            <div class="nav-wrapper">
+                <div class="logo" onclick="window.location.href='index.html'">
+                    <span>🍽️</span>
+                    <span>RailBite</span>
+                </div>
+                <ul class="nav-menu" id="navMenu">
+                    <li><a href="index.html">Home</a></li>
+                    <li><a href="about.html">About Us</a></li>
+                    <li><a href="contact.html">Contact</a></li>
+                </ul>
+                <div class="cart-icon" onclick="window.location.href='cart.html'">
+                    🛒
+                    <span class="cart-badge" id="cartCount">0</span>
+                </div>
+                <div class="user-icon" onclick="window.location.href='profile.html'" style="font-size: 1.8rem; cursor: pointer; margin-left: 1rem;">
+                    👤
+                </div>
+                <div class="hamburger" id="hamburger">
+                    <span></span>
+                    <span></span>
+                    <span></span>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Cart Page -->
+    <div class="cart-page">
+        <div class="container">
+            <div class="cart-header">
+                <h1>Your Cart</h1>
+            </div>
+
+            <!-- Empty Cart Message -->
+            <div id="emptyCart" class="empty-cart" style="display: none;">
+                <div class="empty-cart-icon">🛒</div>
+                <h2>Your cart is empty</h2>
+                <p>Add some delicious items to get started!</p>
+                <a href="menu-categories.html" class="btn btn-primary">Start Ordering</a>
+            </div>
+
+            <!-- Cart Content -->
+            <div class="cart-container">
+                <div class="cart-items" id="cartItems">
+                    <!-- Cart items will be rendered here by JavaScript -->
+                </div>
+
+                <div class="cart-summary" id="cartSummary">
+                    <h3>Order Summary</h3>
+                    
+                    <div class="summary-row">
+                        <span>Subtotal</span>
+                        <span id="subtotal">৳0</span>
+                    </div>
+                    
+                    <div class="summary-row">
+                        <span>VAT (5%)</span>
+                        <span id="vat">৳0</span>
+                    </div>
+                    
+                    <div class="summary-row">
+                        <span>Delivery Fee</span>
+                        <span id="deliveryFee">৳50</span>
+                    </div>
+                    
+                    <div class="summary-row">
+                        <span><strong>Total</strong></span>
+                        <span id="total"><strong>৳0</strong></span>
+                    </div>
+
+                    <button onclick="proceedToCheckout()" class="btn btn-primary btn-block">Proceed to Checkout</button>
+                    
+                    <button onclick="continueShopping()" class="btn btn-secondary btn-block" style="margin-top: 1rem;">Continue Shopping</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Footer -->
+    <footer class="footer">
+        <div class="container">
+            <div class="footer-bottom">
+                <p>&copy; 2024 RailBite BD. All rights reserved.</p>
+            </div>
+        </div>
+    </footer>
+
+    <script src="js/main.js"></script>
+</body>
+</html>

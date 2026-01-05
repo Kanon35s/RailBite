@@ -1,0 +1,103 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Biryani Menu - RailBite BD</title>
+    <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+    <div class="back-button-fixed" onclick="goBack()">
+        <span class="arrow">←</span>
+        <span>Back</span>
+    </div>
+    <!-- Navigation -->
+    <nav class="navbar">
+        <div class="container">
+            <div class="nav-wrapper">
+                <div class="logo" onclick="window.location.href='index.html'">
+                    <span>
+                        <div class="menu-item-image">
+                            <img src="images/roti-niramish.png" alt="Roti with Niramish">
+                        </div>
+                    </span>
+                    <span>RailBite</span>
+                </div>
+                <ul class="nav-menu" id="navMenu">
+                    <li><a href="index.html" class="active">Home</a></li>
+                    <li><a href="about.html">About Us</a></li>
+                    <li><a href="contact.html">Contact</a></li>
+                </ul>
+                <div class="cart-icon" onclick="window.location.href='cart.html'">
+                    🛒
+                    <span class="cart-badge" id="cartCount">0</span>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Biryani Grid Menu -->
+    <div class="menu-page">
+        <div class="container">
+            <h1 style="font-size: 2.5rem; margin-bottom: 3rem; text-align: center;">Biryani Selection</h1>
+
+            <div class="menu-grid-bordered">
+                <div class="menu-card-bordered">
+                    <div class="menu-card-image">
+                        <span style="font-size: 5rem;">🍛</span>
+                    </div>
+                    <div class="menu-card-info">
+                        <h3>Chicken Biryani</h3>
+                        <p class="price">$ 4.99</p>
+                        <button class="btn btn-primary" onclick="addToCart('Chicken Biryani', 499)">Order Now</button>
+                    </div>
+                </div>
+
+                <div class="menu-card-bordered">
+                    <div class="menu-card-image">
+                        <span style="font-size: 5rem;">🍛</span>
+                    </div>
+                    <div class="menu-card-info">
+                        <h3>Beef Biryani</h3>
+                        <p class="price">$ 9.99</p>
+                        <button class="btn btn-primary" onclick="addToCart('Beef Biryani', 999)">Order Now</button>
+                    </div>
+                </div>
+
+                <div class="menu-card-bordered">
+                    <div class="menu-card-image">
+                        <span style="font-size: 5rem;">🍛</span>
+                    </div>
+                    <div class="menu-card-info">
+                        <h3>Mutton Biryani</h3>
+                        <p class="price">$ 7.99</p>
+                        <button class="btn btn-primary" onclick="addToCart('Mutton Biryani', 799)">Order Now</button>
+                    </div>
+                </div>
+
+                <div class="menu-card-bordered">
+                    <div class="menu-card-image">
+                        <span style="font-size: 5rem;">🍛</span>
+                    </div>
+                    <div class="menu-card-info">
+                        <h3>Kacchi Biryani</h3>
+                        <p class="price">$ 8.99</p>
+                        <button class="btn btn-primary" onclick="addToCart('Kacchi Biryani', 899)">Order Now</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Footer -->
+    <footer class="footer">
+        <div class="container">
+            <div class="footer-bottom">
+                <p>&copy; 2024 RailBite BD. All rights reserved.</p>
+            </div>
+        </div>
+    </footer>
+
+    <script src="js/main.js"></script>
+</body>
+</html>

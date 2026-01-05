@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Snacks & Drinks - RailBite BD</title>
+    <link rel="stylesheet" href="css/style.css">
+</head>
+<body class="has-back-button">
+    <!-- Back Button - Fixed Top Left -->
+    <div class="back-button-fixed" onclick="goBack()">
+        <span class="arrow">←</span>
+        <span>Back</span>
+    </div>
+
+    <!-- Navigation -->
+    <nav class="navbar">
+        <div class="container">
+            <div class="nav-wrapper">
+                <div class="logo" onclick="window.location.href='index.html'">
+                    <img src="images/logo.png" alt="RailBite Logo" style="width: 45px; height: 45px;">
+                    <span>RailBite</span>
+                </div>
+                <div class="cart-icon" onclick="window.location.href='cart.html'">
+                    🛒
+                    <span class="cart-badge" id="cartCount">0</span>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Snacks Menu -->
+    <div class="menu-page">
+        <div class="container">
+            <div class="menu-header">
+                <h1>Snacks & Drinks</h1>
+                <p class="ordering-from">Ordering from <span>Train</span></p>
+            </div>
+
+            <div class="menu-grid">
+                <div class="menu-item-card">
+                    <div class="menu-item-image">
+                        <img src="images/burger.png" alt="Burger">
+                    </div>
+                    <div class="menu-item-content">
+                        <h3 class="menu-item-title">Burger</h3>
+                        <p class="menu-item-description">Crispy shells with spicy tamarind water</p>
+                        <div class="menu-item-footer">
+                            <span class="menu-item-price">৳60</span>
+                            <button class="btn btn-explore" onclick="window.location.href='burger-menu.html'">Explore →</button>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="menu-item-card">
+                    <div class="menu-item-image">
+                        <img src="images/jhal-muri.png" alt="Jhal Muri">
+                    </div>
+                    <div class="menu-item-

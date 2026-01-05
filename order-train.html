@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Order from Train - RailBite BD</title>
+    <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+    <div class="back-button-fixed" onclick="goBack()">
+        <span class="arrow">←</span>
+        <span>Back</span>
+    </div>
+    <!-- Navigation -->
+    <nav class="navbar">
+        <div class="container">
+            <div class="nav-wrapper">
+                <div class="logo" onclick="window.location.href='index.html'">
+                    <img src="images/logo.png" alt="RailBite Logo" style="width: 135px; height: 45px;">
+                </div>
+                <div class="logo" onclick="window.location.href='index.html'">
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Booking Form -->
+    <div class="booking-page">
+        <div class="container">
+            <div class="booking-container">
+                <div class="booking-header">
+                    <div class="booking-header-icon">🚂</div>
+                    <div class="booking-header-text">
+                        <h2>Order from Train</h2>
+                        <p>Enter your journey details</p>
+                    </div>
+                </div>
+
+                <form class="booking-form" onsubmit="submitTrainBooking(event)">
+                    <div class="form-group">
+                        <label>Passenger Name *</label>
+                        <input type="text" name="passengerName" placeholder="Enter passenger name" required>
+                    </div>
+
+                    <div class="form-group">
+                        <label>Phone Number *</label>
+                        <input type="tel" name="phone" placeholder="+880 1XXX-XXXXXX" required>
+                    </div>
+
+                    <div class="form-group">
+                        <label>Train Number *</label>
+                        <input type="text" name="trainNumber" placeholder="e.g., 701 (Suborna Express)" required>
+                    </div>
+
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label>Coach Number *</label>
+                            <input type="text" name="coachNumber" placeholder="e.g., KA" required>
+                        </div>
+
+                        <div class="form-group">
+                            <label>Seat Number *</label>
+                            <input type="text" name="seatNumber" placeholder="e.g., 25" required>
+                        </div>
+                    </div>
+
+                    <button type="submit" class="btn btn-primary btn-block">Continue to Menu</button>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <script src="js/main.js"></script>
+</body>
+</html>
