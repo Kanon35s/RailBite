@@ -28,7 +28,7 @@ const OrderSelection = () => {
               className="selection-card"
               onClick={() => navigate('/order-train')}
             >
-              <div className="selection-icon">🚂</div>
+              <div className="selection-icon"><img src="/images/train.png" alt="train" /></div>
               <h3>Order from Train</h3>
               <p>
                 Get food prepared and served by onboard train services directly to your seat
@@ -41,7 +41,7 @@ const OrderSelection = () => {
               className="selection-card"
               onClick={() => navigate('/order-station')}
             >
-              <div className="selection-icon">🏢</div>
+              <div className="selection-icon"><img src="/images/station.png" alt="station" /></div>
               <h3>Order from Station</h3>
               <p>
                 Get food from verified restaurants and vendors at selected railway stations

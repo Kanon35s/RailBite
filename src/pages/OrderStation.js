@@ -29,6 +29,10 @@ const OrderStation = () => {
     'Rangpur'
   ];
 
+  // Add options arrays for coach and seat
+  const coachOptions = ['KA', 'KHA', 'GA', 'GHA', 'UMO', 'CHA', 'SHA', 'JA', 'JHA'];
+  const seatOptions = Array.from({ length: 50 }, (_, i) => i + 1);
+
   const handleChange = (e) => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
   };
@@ -44,7 +48,6 @@ const OrderStation = () => {
     saveOrderType('station');
     saveBookingDetails({ ...formData, orderType: 'station' });
     
-    // Save order type to localStorage
     localStorage.setItem('railbiteOrderType', 'Station');
     
     setToast({ message: 'Details saved! Redirecting to menu...', type: 'success' });
@@ -57,11 +60,10 @@ const OrderStation = () => {
   return (
     <div className="booking-page">
       <BackButton />
-      {/* Booking Form */}
       <div className="container">
         <div className="booking-container">
           <div className="booking-header">
-            <div className="booking-header-icon">🏢</div>
+            <div className="booking-header-icon"><img src="/images/station.png" alt="station" /></div>
             <div className="booking-header-text">
               <h2>Order from Station</h2>
               <p>Enter your journey details and pickup station</p>
@@ -125,26 +127,36 @@ const OrderStation = () => {
             <div className="form-row">
               <div className="form-group">
                 <label>Coach Number</label>
-                <input
-                  type="text"
+                <select
                   name="coachNumber"
                   value={formData.coachNumber}
                   onChange={handleChange}
-                  placeholder="e.g., KA"
                   required
-                />
+                >
+                  <option value="">Select Coach</option>
+                  {coachOptions.map((coach) => (
+                    <option key={coach} value={coach}>
+                      {coach}
+                    </option>
+                  ))}
+                </select>
               </div>
 
               <div className="form-group">
                 <label>Seat Number</label>
-                <input
-                  type="text"
+                <select
                   name="seatNumber"
                   value={formData.seatNumber}
                   onChange={handleChange}
-                  placeholder="e.g., 10"
                   required
-                />
+                >
+                  <option value="">Select Seat</option>
+                  {seatOptions.map((seat) => (
+                    <option key={seat} value={seat}>
+                      {seat}
+                    </option>
+                  ))}
+                </select>
               </div>
             </div>
 
