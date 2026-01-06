@@ -1,0 +1,131 @@
+═══════════════════════════════════════════════════════════════
+  🚂 RAILBITE BD - COMPLETE REACT APP (SEPARATE FILES)
+═══════════════════════════════════════════════════════════════
+
+✅ EXACTLY LIKE YOUR TSX VERSION!
+✅ 10 SEPARATE HTML FILES
+✅ REAL FIGMA IMAGES
+✅ FULL SHOPPING CART
+✅ COMPLETE ORDER FLOW
+
+═══════════════════════════════════════════════════════════════
+
+📦 WHAT YOU NEED TO COPY:
+
+Copy ALL 10 HTML files from the "railbite-react" folder:
+
+1. index.html
+2. login.html
+3. order-options.html
+4. train-form.html
+5. station-form.html
+6. menu-categories.html
+7. menu.html
+8. cart.html
+9. payment.html
+10. success.html
+
+═══════════════════════════════════════════════════════════════
+
+🚀 HOW TO RUN:
+
+OPTION 1: Simple (No VS Code)
+   → Just double-click "index.html"
+   → It opens in your browser
+   → Everything works!
+
+OPTION 2: With VS Code
+   1. Open VS Code
+   2. File → Open Folder → Select "railbite-react"
+   3. Right-click "index.html" → Open with Live Server
+   4. Or just double-click "index.html"
+
+═══════════════════════════════════════════════════════════════
+
+🎯 TEST THE APP:
+
+1. Click "Get Started" or "Login / Register"
+2. Enter any email/password
+3. Choose "Order from Train" or "Order from Station"
+4. Fill the form
+5. Select category (Breakfast, Snacks, Lunch, Dinner)
+6. See REAL FOOD IMAGES! 🍛
+7. Click "Add" to add items
+8. Cart badge shows total items
+9. Go to cart, adjust quantities
+10. Proceed to payment
+11. Select bKash/Nagad/Rocket
+12. Confirm → Success!
+
+═══════════════════════════════════════════════════════════════
+
+✨ WHAT WORKS:
+
+✅ Landing page with hero
+✅ Login/Registration
+✅ Order from Train (PNR, coach, seat)
+✅ Order from Station (station, time)
+✅ Menu categories
+✅ Menu with real Figma images
+✅ Shopping cart
+✅ Add/Remove/Quantity controls
+✅ Cart badge
+✅ Different prices (train vs station)
+✅ Payment methods
+✅ Order confirmation
+✅ Full navigation
+✅ Persistent cart (localStorage)
+
+═══════════════════════════════════════════════════════════════
+
+🖼️ IMAGES:
+
+All images load from UploadCare (your Figma assets):
+✅ RailBite Logo
+✅ 3 Shawarma images
+✅ 4 Drink images
+✅ Hero food image
+
+(Requires internet to load images)
+
+═══════════════════════════════════════════════════════════════
+
+💡 TECH STACK:
+
+✅ React 18 (from CDN)
+✅ Tailwind CSS (from CDN)
+✅ Babel (from CDN)
+✅ LocalStorage for state
+
+No installation needed!
+No build process!
+Just copy and open!
+
+═══════════════════════════════════════════════════════════════
+
+📂 FOLDER STRUCTURE:
+
+railbite-react/
+├── index.html              ← START HERE
+├── login.html
+├── order-options.html
+├── train-form.html
+├── station-form.html
+├── menu-categories.html
+├── menu.html
+├── cart.html
+├── payment.html
+├── success.html
+├── README.md               (Detailed documentation)
+└── START-HERE.txt          (This file)
+
+═══════════════════════════════════════════════════════════════
+
+🎉 YOU'RE ALL SET!
+
+Just open "index.html" and everything works EXACTLY like your
+TSX version!
+
+For detailed information, read README.md
+
+═══════════════════════════════════════════════════════════════
