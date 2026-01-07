@@ -63,10 +63,18 @@ const OrderStation = () => {
       <div className="container">
         <div className="booking-container">
           <div className="booking-header">
-            <div className="booking-header-icon"><img src="/images/station.png" alt="station" /></div>
-            <div className="booking-header-text">
-              <h2>Order from Station</h2>
-              <p>Enter your journey details and pickup station</p>
+            {/* Background Image */}
+            <div className="booking-header-bg">
+              <img src="/images/station.png" alt="" />
+            </div>
+            
+            {/* Content */}
+            <div className="booking-header-content">
+             
+              <div className="booking-header-text">
+                <h2>Order from Station</h2>
+                <p>Enter your journey details and pickup station</p>
+              </div>
             </div>
           </div>
 

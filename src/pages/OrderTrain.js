@@ -51,10 +51,18 @@ const OrderTrain = () => {
       <div className="container">
         <div className="booking-container">
           <div className="booking-header">
-            <div className="booking-header-icon"><img src="/images/train.png" alt="train" /></div>
-            <div className="booking-header-text">
-              <h2>Order from Train</h2>
-              <p>Enter your journey details</p>
+            {/* Background Image */}
+            <div className="booking-header-bg">
+              <img src="/images/train.png" alt="" />
+            </div>
+            
+            {/* Content */}
+            <div className="booking-header-content">
+              
+              <div className="booking-header-text">
+                <h2>Order from Train</h2>
+                <p>Enter your journey details</p>
+              </div>
             </div>
           </div>
 

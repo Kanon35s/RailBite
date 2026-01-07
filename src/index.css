@@ -4857,3 +4857,82 @@ body.has-back-button {
     margin-left: 0.5rem;
   }
 }
+.selection-card {
+  position: relative;
+  overflow: hidden;
+  transition: all 0.3s ease;
+}
+
+.selection-bg-image img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  opacity: 70;
+  transition: all 0.3s ease;
+}
+
+.selection-card:hover .selection-bg-image img {
+  opacity: 0.25;
+  filter: drop-shadow(0 0 30px rgba(255, 150, 0, 0.8))
+          drop-shadow(0 0 60px rgba(255, 150, 0, 0.5));
+}
+
+.booking-header {
+  position: relative;
+  overflow: hidden;
+  padding: 20px;
+  border-radius: 10px;
+  transition: all 0.3s ease;
+}
+
+/* Background Image Layer */
+.booking-header-bg {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  z-index: 0;
+  overflow: hidden;
+}
+
+.booking-header-bg img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  opacity: 0.1;
+  transition: all 0.3s ease;
+}
+
+/* Content Layer (on top) */
+.booking-header-content {
+  position: relative;
+  z-index: 1;
+  display: flex;
+  align-items: center;
+  gap: 15px;
+}
+
+/* Hover Effects */
+.booking-header:hover .booking-header-bg img {
+  opacity: 0.2;
+  transform: scale(1.05);
+  filter: drop-shadow(0 0 20px rgba(255, 150, 0, 0.6))
+          drop-shadow(0 0 40px rgba(255, 150, 0, 0.3));
+}
+
+.booking-header:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 5px 20px rgba(0, 0, 0, 0.1);
+}
+
+/* Icon styling */
+.booking-header-icon {
+  flex-shrink: 0;
+}
+
+.booking-header-icon img {
+  width: 50px;
+  height: 50px;
+  object-fit: contain;
+}

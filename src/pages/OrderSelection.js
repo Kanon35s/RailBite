@@ -16,7 +16,6 @@ const OrderSelection = () => {
     <div className="order-selection-page">
       <BackButton />
 
-      {/* Order Selection Cards */}
       <div className="container">
         <div className="selection-container">
           <h1 className="selection-title">Choose Your Ordering Option</h1>
@@ -28,12 +27,16 @@ const OrderSelection = () => {
               className="selection-card"
               onClick={() => navigate('/order-train')}
             >
-              <div className="selection-icon"><img src="/images/train.png" alt="train" /></div>
-              <h3>Order from Train</h3>
-              <p>
-                Get food prepared and served by onboard train services directly to your seat
-              </p>
-              <button className="btn btn-primary">Select</button>
+              <div className="selection-bg-image">
+                <img src="/images/train.png" alt="" />
+              </div>
+              <div className="selection-content">
+                <h3>Order from Train</h3>
+                <p>
+                  Get food prepared and served by onboard train services directly to your seat
+                </p>
+                <button className="btn btn-primary">Select</button>
+              </div>
             </div>
 
             {/* Order from Station Card */}
@@ -41,12 +44,16 @@ const OrderSelection = () => {
               className="selection-card"
               onClick={() => navigate('/order-station')}
             >
-              <div className="selection-icon"><img src="/images/station.png" alt="station" /></div>
-              <h3>Order from Station</h3>
-              <p>
-                Get food from verified restaurants and vendors at selected railway stations
-              </p>
-              <button className="btn btn-primary">Select</button>
+              <div className="selection-bg-image">
+                <img src="/images/station.png" alt="" />
+              </div>
+              <div className="selection-content">
+                <h3>Order from Station</h3>
+                <p>
+                  Get food from verified restaurants and vendors at selected railway stations
+                </p>
+                <button className="btn btn-primary">Select</button>
+              </div>
             </div>
           </div>
         </div>
