@@ -1,0 +1,97 @@
+/* RAILBITE BD - CHECKOUT PAGE */
+/* Checkout Form, Payment Methods, Order Summary */
+
+.checkout-page {
+  padding: 80px 0;
+  min-height: 70vh;
+}
+
+.checkout-container {
+  display: grid;
+  grid-template-columns: 1.5fr 1fr;
+  gap: 2rem;
+}
+
+.checkout-section {
+  background: var(--dark-card);
+  padding: 2rem;
+  border-radius: 20px;
+  border: 1px solid var(--border-dark);
+  margin-bottom: 2rem;
+}
+
+.checkout-section h3 {
+  font-size: 1.5rem;
+  margin-bottom: 1.5rem;
+  color: var(--text-white);
+}
+
+.payment-methods {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 1rem;
+  margin-bottom: 2rem;
+}
+
+.payment-method {
+  background: var(--dark-lighter);
+  padding: 1.5rem;
+  border-radius: 10px;
+  border: 2px solid var(--border-dark);
+  cursor: pointer;
+  transition: all 0.3s;
+  text-align: center;
+}
+
+.payment-method:hover {
+  border-color: var(--primary-orange);
+}
+
+.payment-method.active {
+  border-color: var(--primary-orange);
+  background: rgba(255, 140, 66, 0.1);
+}
+
+.payment-method-icon {
+  font-size: 2rem;
+  margin-bottom: 0.5rem;
+}
+
+.payment-method h4 {
+  font-size: 1.1rem;
+  margin-bottom: 0.3rem;
+  color: var(--text-white);
+}
+
+.payment-method p {
+  font-size: 0.85rem;
+  color: var(--text-gray);
+}
+
+.payment-details {
+  background: rgba(255, 140, 66, 0.1);
+  border: 1px solid var(--border-orange);
+  padding: 1.5rem;
+  border-radius: 10px;
+  margin-top: 1rem;
+}
+
+.payment-details h4 {
+  color: var(--primary-orange);
+  margin-bottom: 1rem;
+}
+
+.payment-details p {
+  color: var(--text-gray);
+  margin-bottom: 0.5rem;
+  line-height: 1.6;
+}
+
+.security-note {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  color: var(--text-gray);
+  font-size: 0.9rem;
+  margin-top: 1rem;
+}

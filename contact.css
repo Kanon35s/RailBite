@@ -1,0 +1,26 @@
+/* RAILBITE BD - CONTACT PAGE */
+
+.contact-page {
+  padding: 80px 0;
+  min-height: 70vh;
+}
+
+.contact-header h1 {
+  font-size: 3rem;
+  margin-bottom: 1rem;
+  color: var(--text-white);
+  text-align: center;
+}
+
+.contact-card {
+  background: var(--dark-card);
+  padding: 2rem;
+  border-radius: 20px;
+  border: 1px solid var(--border-dark);
+  transition: all 0.3s;
+}
+
+.contact-card:hover {
+  border-color: var(--primary-orange);
+  transform: translateX(5px);
+}
