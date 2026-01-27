@@ -1,19 +1,23 @@
 import React from 'react';
-import { Navigate, useLocation } from 'react-router-dom';
+import { Navigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 
-const ProtectedRoute = ({ children }) => {
-  const { isAuthenticated, loading } = useAuth();
-  const location = useLocation();
+const ProtectedRoute = ({ children, allowedRoles }) => {
+  const { user, loading } = useAuth();
 
   if (loading) {
+    // You can customize this loader
     return <div>Loading...</div>;
   }
 
-  if (!isAuthenticated()) {
-    // Save the intended URL for redirect after login
-    localStorage.setItem('railbiteIntendedUrl', location.pathname);
+  if (!user) {
     return <Navigate to="/login" replace />;
+  }
+
+  if (allowedRoles && allowedRoles.length > 0) {
+    if (!allowedRoles.includes(user.role)) {
+      return <Navigate to="/" replace />;
+    }
   }
 
   return children;

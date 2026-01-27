@@ -1,3 +1,4 @@
+// src/services/api.js
 import axios from 'axios';
 
 const API_URL = process.env.REACT_APP_API_URL || 'http://localhost:5000/api';
@@ -6,8 +7,8 @@ const API_URL = process.env.REACT_APP_API_URL || 'http://localhost:5000/api';
 const api = axios.create({
   baseURL: API_URL,
   headers: {
-    'Content-Type': 'application/json'
-  }
+    'Content-Type': 'application/json',
+  },
 });
 
 // Add token to requests
@@ -19,9 +20,7 @@ api.interceptors.request.use(
     }
     return config;
   },
-  (error) => {
-    return Promise.reject(error);
-  }
+  (error) => Promise.reject(error)
 );
 
 // Handle response errors
@@ -45,7 +44,7 @@ export const authAPI = {
   updateProfile: (data) => api.put('/auth/profile', data),
   forgotPassword: (email) => api.post('/auth/forgot-password', { email }),
   resetPassword: (data) => api.post('/auth/reset-password', data),
-  logout: () => api.post('/auth/logout')
+  logout: () => api.post('/auth/logout'),
 };
 
 export default api;

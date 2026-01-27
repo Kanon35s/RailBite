@@ -1,36 +1,51 @@
 const User = require('../models/User');
 
-// GET /api/admin/users
-exports.getAllUsers = async (req, res) => {
+exports.getAllUsers = async (req, res, next) => {
   try {
-    const users = await User.find().select('-password');
+    const users = await User.find().sort({ createdAt: -1 }).select('-password');
     res.json({ success: true, data: users });
   } catch (err) {
-    res.status(500).json({ success: false, message: err.message });
+    next(err);
   }
 };
 
-// PUT /api/admin/users/:id  (e.g., change role, phone)
-exports.updateUserAdmin = async (req, res) => {
+exports.updateUserStatus = async (req, res, next) => {
   try {
-    const user = await User.findByIdAndUpdate(
-      req.params.id,
-      { name: req.body.name, phone: req.body.phone, role: req.body.role },
-      { new: true, runValidators: true }
-    ).select('-password');
-    if (!user) return res.status(404).json({ success: false, message: 'User not found' });
+    const { status } = req.body; // 'active' | 'blocked'
+    const user = await User.findById(req.params.id);
+    if (!user) {
+      return res
+        .status(404)
+        .json({ success: false, message: 'User not found' });
+    }
+
+    if (!['active', 'blocked'].includes(status)) {
+      return res
+        .status(400)
+        .json({ success: false, message: 'Invalid status' });
+    }
+
+    user.status = status;
+    await user.save();
+
     res.json({ success: true, data: user });
   } catch (err) {
-    res.status(500).json({ success: false, message: err.message });
+    next(err);
   }
 };
 
-// DELETE /api/admin/users/:id
-exports.deleteUserAdmin = async (req, res) => {
+exports.deleteUser = async (req, res, next) => {
   try {
-    await User.findByIdAndDelete(req.params.id);
-    res.json({ success: true, message: 'User deleted' });
+    const user = await User.findById(req.params.id);
+    if (!user) {
+      return res
+        .status(404)
+        .json({ success: false, message: 'User not found' });
+    }
+
+    await user.deleteOne();
+    res.json({ success: true, message: 'User deleted successfully' });
   } catch (err) {
-    res.status(500).json({ success: false, message: err.message });
+    next(err);
   }
 };

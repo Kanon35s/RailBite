@@ -1,19 +1,14 @@
 const express = require('express');
 const router = express.Router();
-const { protect, admin } = require('../middleware/admin');
+const { protectDelivery } = require('../middleware/deliveryAuth'); // middleware to decode staff JWT
 const {
-  getAllStaff,
-  createStaff,
-  updateStaff,
-  deleteStaff,
+  getAvailableOrdersForStaff,
+  acceptOrderByStaff,
+  getStaffDeliveryHistory,
 } = require('../controllers/deliveryController');
 
-router.route('/')
-  .get(protect, admin, getAllStaff)
-  .post(protect, admin, createStaff);
-
-router.route('/:id')
-  .put(protect, admin, updateStaff)
-  .delete(protect, admin, deleteStaff);
+router.get('/orders/available', protectDelivery, getAvailableOrdersForStaff);
+router.post('/orders/:orderId/accept', protectDelivery, acceptOrderByStaff);
+router.get('/orders/history', protectDelivery, getStaffDeliveryHistory);
 
 module.exports = router;

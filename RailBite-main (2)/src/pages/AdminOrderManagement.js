@@ -10,7 +10,6 @@ const AdminOrderManagement = () => {
   const filteredOrders = safeOrders.filter(order => {
     if (filter === 'all') return true;
     if (filter === 'pending') return order.status === 'pending';
-    if (filter === 'preparing') return order.deliveryStatus === 'preparing';
     if (filter === 'sent') return order.deliveryStatus === 'sent';
     if (filter === 'delivered') return order.status === 'delivered';
     return true;
@@ -42,7 +41,6 @@ const AdminOrderManagement = () => {
   const getStatusBadge = (status) => {
     const badges = {
       pending: { text: 'Pending', class: 'status-pending' },
-      preparing: { text: 'Preparing', class: 'status-preparing' },
       sent: { text: 'Sent', class: 'status-sent' },
       delivered: { text: 'Delivered', class: 'status-delivered' },
       cancelled: { text: 'Cancelled', class: 'status-cancelled' },
@@ -73,12 +71,6 @@ const AdminOrderManagement = () => {
             onClick={() => setFilter('pending')}
           >
             Pending
-          </button>
-          <button
-            className={`filter-btn ${filter === 'preparing' ? 'active' : ''}`}
-            onClick={() => setFilter('preparing')}
-          >
-            Preparing
           </button>
           <button
             className={`filter-btn ${filter === 'sent' ? 'active' : ''}`}

@@ -5,6 +5,8 @@ import { CartProvider } from './context/CartContext';
 import { OrderProvider } from './context/OrderContext';
 import { AdminProvider } from './context/AdminContext';
 import { MenuProvider } from './context/MenuContext';
+import DeliveryDashboard from './pages/DeliveryDashboard';
+
 
 // Pages
 import Home from './pages/Home';
@@ -50,6 +52,7 @@ import AdminUserManagement from './pages/AdminUserManagement';
 import AdminDeliveryManagement from './pages/AdminDeliveryManagement';
 import AdminReports from './pages/AdminReports';
 import AdminNotifications from './pages/AdminNotifications';
+import AdminDeliveryStaff from './pages/AdminDeliveryStaff';
 
 // Components
 import Navbar from './components/Navbar';
@@ -89,9 +92,27 @@ function App() {
                       <Route path="/register" element={<Register />} />
                       <Route path="/forgot-password" element={<ForgotPassword />} />
                       <Route path="/reset-password" element={<ResetPassword />} />
+                      <Route path="/delivery/dashboard" element={<DeliveryDashboard />} />
+                      <Route path="/admin/delivery-staff" element={<AdminDeliveryStaff />} />
                       <Route path="/about" element={<About />} />
                       <Route path="/contact" element={<Contact />} />
+                      <Route
+                        path="/admin/dashboard"
+                        element={
+                          <ProtectedRoute allowedRoles={['admin']}>
+                            <AdminDashboard />
+                          </ProtectedRoute>
+                        }
+                      />
 
+                      <Route
+                        path="/profile"
+                        element={
+                          <ProtectedRoute allowedRoles={['user', 'admin']}>
+                            <Profile />
+                          </ProtectedRoute>
+                        }
+                      />
                       {/* Protected Routes */}
                       <Route
                         path="/order-selection"

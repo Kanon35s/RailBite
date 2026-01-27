@@ -20,6 +20,7 @@
 
 /* 5. Authentication */
 @import './auth.css';
+@import './login-toggle.css';
 
 /* 6. Shopping & Orders */
 @import './cart.css';

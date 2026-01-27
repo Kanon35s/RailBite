@@ -1,4 +1,10 @@
-import React, { createContext, useState, useContext, useEffect } from 'react';
+// src/context/AuthContext.js
+import React, {
+  createContext,
+  useState,
+  useContext,
+  useEffect,
+} from 'react';
 import { authAPI } from '../services/api';
 
 const AuthContext = createContext();
@@ -12,11 +18,16 @@ export const useAuth = () => {
 };
 
 export const AuthProvider = ({ children }) => {
-  const [user, setUser] = useState(null);
+  // load user from localStorage (includes role)
+  const [user, setUser] = useState(() => {
+    const stored = localStorage.getItem('railbiteUser');
+    return stored ? JSON.parse(stored) : null;
+  });
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     checkAuth();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   const checkAuth = async () => {
@@ -24,30 +35,37 @@ export const AuthProvider = ({ children }) => {
     if (token) {
       try {
         const response = await authAPI.getMe();
-        if (response.data.success) {
+        if (response.data.success && response.data.user) {
           setUser(response.data.user);
+        } else {
+          localStorage.removeItem('railbiteToken');
+          localStorage.removeItem('railbiteUser');
+          setUser(null);
         }
       } catch (error) {
         console.error('Auth check failed:', error);
         localStorage.removeItem('railbiteToken');
         localStorage.removeItem('railbiteUser');
+        setUser(null);
       }
     }
     setLoading(false);
   };
 
+  // normal + admin login
   const login = async (email, password) => {
     try {
       const response = await authAPI.login({ email, password });
-      
       if (response.data.success) {
         const { token, user } = response.data;
         localStorage.setItem('railbiteToken', token);
         localStorage.setItem('railbiteUser', JSON.stringify(user));
         setUser(user);
-        return { success: true };
+        return { success: true, user };
       }
+      return { success: false, message: 'Login failed' };
     } catch (error) {
+      console.error('AuthContext.login error:', error);
       const message = error.response?.data?.message || 'Login failed';
       return { success: false, message };
     }
@@ -59,17 +77,18 @@ export const AuthProvider = ({ children }) => {
         name: fullName,
         email,
         phone,
-        password
+        password,
       });
-
       if (response.data.success) {
         const { token, user } = response.data;
         localStorage.setItem('railbiteToken', token);
         localStorage.setItem('railbiteUser', JSON.stringify(user));
         setUser(user);
-        return { success: true };
+        return { success: true, user };
       }
+      return { success: false, message: 'Registration failed' };
     } catch (error) {
+      console.error('AuthContext.register error:', error);
       const message = error.response?.data?.message || 'Registration failed';
       return { success: false, message };
     }
@@ -84,18 +103,20 @@ export const AuthProvider = ({ children }) => {
     localStorage.removeItem('railbiteBooking');
   };
 
-  const isAuthenticated = () => {
-    return user !== null;
-  };
+  const isAuthenticated = () => !!user;
 
   const value = {
-    user,
+    user,              // includes role
     login,
     register,
     logout,
     isAuthenticated,
-    loading
+    loading,
   };
 
-  return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
+  return (
+    <AuthContext.Provider value={value}>
+      {children}
+    </AuthContext.Provider>
+  );
 };
