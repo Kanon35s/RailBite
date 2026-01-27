@@ -17,17 +17,6 @@ export const OrderProvider = ({ children }) => {
   const [bookingDetails, setBookingDetails] = useState(null);
 
   useEffect(() => {
-    // Load order history from localStorage
-    const storedOrders = localStorage.getItem('railbiteOrderHistory');
-    if (storedOrders) {
-      setOrderHistory(JSON.parse(storedOrders));
-    } else {
-      // Generate mock orders for demo
-      const mockOrders = generateMockOrders();
-      setOrderHistory(mockOrders);
-      localStorage.setItem('railbiteOrderHistory', JSON.stringify(mockOrders));
-    }
-
     // Load order type
     const storedOrderType = localStorage.getItem('railbiteOrderType');
     if (storedOrderType) {
@@ -39,8 +28,15 @@ export const OrderProvider = ({ children }) => {
     if (storedBooking) {
       setBookingDetails(JSON.parse(storedBooking));
     }
+
+    // Optional: load last order from localStorage for quick display
+    const lastOrder = localStorage.getItem('railbiteLastOrder');
+    if (lastOrder) {
+      setCurrentOrder(JSON.parse(lastOrder));
+    }
   }, []);
 
+  // Called from OrderTrain / OrderStation
   const saveOrderType = (type) => {
     setOrderType(type);
     localStorage.setItem('railbiteOrderType', type);
@@ -51,62 +47,38 @@ export const OrderProvider = ({ children }) => {
     localStorage.setItem('railbiteBooking', JSON.stringify(details));
   };
 
-  const addOrder = (order) => {
+  /**
+   * addOrder will be called after a successful backend POST /api/orders.
+   * You pass the created order (from backend) into this, so the context
+   * can keep latest order & local history for UI convenience.
+   */
+  const addOrder = (orderFromBackend) => {
+    if (!orderFromBackend) return null;
+
     const newOrder = {
-      ...order,
-      id: order.id || `RB${Math.floor(Math.random() * 1000000)}`,
-      date: new Date().toISOString(),
-      status: 'pending'
+      ...orderFromBackend,
+      id: orderFromBackend.orderId || orderFromBackend.id, // for compatibility
+      date: orderFromBackend.createdAt || new Date().toISOString(),
     };
-    
+
     const updatedHistory = [newOrder, ...orderHistory];
     setOrderHistory(updatedHistory);
     localStorage.setItem('railbiteOrderHistory', JSON.stringify(updatedHistory));
+
     setCurrentOrder(newOrder);
     localStorage.setItem('railbiteLastOrder', JSON.stringify(newOrder));
-    
+
     return newOrder;
   };
 
-  const getOrderById = (orderId) => {
-    return orderHistory.find(order => order.id === orderId);
+  const setOrdersFromBackend = (ordersArray) => {
+    // helper to set full history when you fetch from GET /api/orders
+    setOrderHistory(ordersArray || []);
+    localStorage.setItem('railbiteOrderHistory', JSON.stringify(ordersArray || []));
   };
 
-  const generateMockOrders = () => {
-    return [
-      {
-        id: 'RB123456',
-        date: new Date('2024-12-18').toISOString(),
-        items: [
-          { name: 'Kacchi Biryani', quantity: 2, price: 350 },
-          { name: 'Borhani', quantity: 2, price: 50 }
-        ],
-        customer: { fullName: 'Rashid Mostafa', phone: '01898942731' },
-        paymentMethod: 'mobile',
-        subtotal: 800,
-        vat: 40,
-        deliveryFee: 50,
-        total: 890,
-        status: 'delivered',
-        trainInfo: { trainNumber: '701', coachNumber: 'KA', seatNumber: '25' }
-      },
-      {
-        id: 'RB123455',
-        date: new Date('2024-12-15').toISOString(),
-        items: [
-          { name: 'Paratha with Dim Bhuna', quantity: 1, price: 120 },
-          { name: 'Cha (Tea)', quantity: 1, price: 15 }
-        ],
-        customer: { fullName: 'Rashid Mostafa', phone: '01898942731' },
-        paymentMethod: 'cash',
-        subtotal: 135,
-        vat: 7,
-        deliveryFee: 50,
-        total: 192,
-        status: 'delivered',
-        trainInfo: { trainNumber: '709', coachNumber: 'GHA', seatNumber: '42' }
-      }
-    ];
+  const getOrderById = (orderId) => {
+    return orderHistory.find((order) => order.orderId === orderId || order.id === orderId);
   };
 
   const value = {
@@ -116,8 +88,9 @@ export const OrderProvider = ({ children }) => {
     bookingDetails,
     saveOrderType,
     saveBookingDetails,
-    addOrder,
-    getOrderById
+    addOrder,              // use after POST /api/orders
+    setOrdersFromBackend,  // use after GET /api/orders
+    getOrderById,
   };
 
   return <OrderContext.Provider value={value}>{children}</OrderContext.Provider>;

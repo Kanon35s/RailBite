@@ -17,7 +17,6 @@ const OrderTrain = () => {
   const { saveOrderType, saveBookingDetails } = useOrder();
   const navigate = useNavigate();
 
-  // Add options arrays
   const coachOptions = ['KA', 'KHA', 'GA', 'GHA', 'UMO', 'CHA', 'SHA', 'JA', 'JHA'];
   const seatOptions = Array.from({ length: 50 }, (_, i) => i + 1);
 
@@ -28,20 +27,25 @@ const OrderTrain = () => {
   const handleSubmit = (e) => {
     e.preventDefault();
 
-    if (!formData.passengerName || !formData.phone || !formData.trainNumber || !formData.coachNumber || !formData.seatNumber) {
+    if (
+      !formData.passengerName ||
+      !formData.phone ||
+      !formData.trainNumber ||
+      !formData.coachNumber ||
+      !formData.seatNumber
+    ) {
       setToast({ message: 'Please fill in all fields', type: 'error' });
       return;
     }
 
+    // Store lowercase orderType used by backend
     saveOrderType('train');
     saveBookingDetails({ ...formData, orderType: 'train' });
-    
-    localStorage.setItem('railbiteOrderType', 'Train');
-    
+
     setToast({ message: 'Details saved! Redirecting to menu...', type: 'success' });
-    
+
     setTimeout(() => {
-      navigate('/menu-categories', { state: { orderType: 'Train' } });
+      navigate('/menu-categories', { state: { orderType: 'train' } });
     }, 1000);
   };
 
@@ -51,7 +55,9 @@ const OrderTrain = () => {
       <div className="container">
         <div className="booking-container">
           <div className="booking-header">
-            <div className="booking-header-icon"><img src="/images/train.png" alt="train" /></div>
+            <div className="booking-header-icon">
+              <img src="/images/train.png" alt="train" />
+            </div>
             <div className="booking-header-text">
               <h2>Order from Train</h2>
               <p>Enter your journey details</p>
