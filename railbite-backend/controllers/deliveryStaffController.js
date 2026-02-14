@@ -1,4 +1,4 @@
-// controllers/deliveryStaffController.js
+// railbite-backend/controllers/deliveryStaffController.js
 const DeliveryStaff = require('../models/DeliveryStaff');
 
 exports.getAllDeliveryStaff = async (req, res, next) => {
@@ -23,7 +23,7 @@ exports.createDeliveryStaff = async (req, res, next) => {
     const staff = await DeliveryStaff.create({
       name,
       phone,
-      type,
+      type,                         // 'train' | 'station'
       vehicle: type === 'station' ? vehicle || '' : null,
     });
 

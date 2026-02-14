@@ -1,6 +1,7 @@
+// railbite-backend/routes/adminMenuRoutes.js
 const express = require('express');
 const router = express.Router();
-const { protect, admin } = require('../middleware/auth');
+
 const {
   getMenuAdmin,
   createMenuItem,
@@ -8,10 +9,22 @@ const {
   deleteMenuItem,
 } = require('../controllers/adminMenuController');
 
-// Admin menu CRUD
-router.get('/admin/menu', protect, admin, getMenuAdmin);
-router.post('/admin/menu', protect, admin, createMenuItem);
-router.put('/admin/menu/:id', protect, admin, updateMenuItem);
-router.delete('/admin/menu/:id', protect, admin, deleteMenuItem);
+const { protect } = require('../middleware/auth');
+const { admin } = require('../middleware/admin');
+
+// All routes below: /api/admin/menu...
+router.use(protect, admin);
+
+// GET /api/admin/menu
+router.get('/', getMenuAdmin);
+
+// POST /api/admin/menu
+router.post('/', createMenuItem);
+
+// PUT /api/admin/menu/:id
+router.put('/:id', updateMenuItem);
+
+// DELETE /api/admin/menu/:id
+router.delete('/:id', deleteMenuItem);
 
 module.exports = router;

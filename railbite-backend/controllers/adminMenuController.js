@@ -1,3 +1,4 @@
+// railbite-backend/controllers/adminMenuController.js
 const MenuItem = require('../models/MenuItem');
 
 exports.getMenuAdmin = async (req, res, next) => {
