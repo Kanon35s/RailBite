@@ -13,6 +13,7 @@ export const useNotification = () => {
 export const NotificationProvider = ({ children }) => {
   const [notifications, setNotifications] = useState([]);
 
+<<<<<<< HEAD
   useEffect(() => {
     const saved = localStorage.getItem('railbiteNotifications');
     if (saved) {
@@ -20,6 +21,23 @@ export const NotificationProvider = ({ children }) => {
     }
   }, []);
 
+=======
+    // inside NotificationProvider, after useEffect that loads localStorage
+  useEffect(() => {
+    // pseudo-code; you need api + role/group info
+    const loadFromServer = async () => {
+      try {
+        const group = isStaff ? 'staff' : 'users';
+        const res = await api.get(`/notifications/${group}`);
+        const serverNotifications = res.data.data || [];
+        // merge serverNotifications with local ones by id or time
+      } catch (e) {}
+    };
+    loadFromServer();
+  }, []);
+
+
+>>>>>>> parent of 4e40cd62 (latest update on backend completion)
   const addNotification = (notification) => {
     const newNotification = {
       id: Date.now(),

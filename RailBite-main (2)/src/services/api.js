@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+// src/services/api.js
+>>>>>>> parent of 4e40cd62 (latest update on backend completion)
 import axios from 'axios';
 
 const API_URL = process.env.REACT_APP_API_URL || 'http://localhost:5000/api';
@@ -6,8 +10,13 @@ const API_URL = process.env.REACT_APP_API_URL || 'http://localhost:5000/api';
 const api = axios.create({
   baseURL: API_URL,
   headers: {
+<<<<<<< HEAD
     'Content-Type': 'application/json'
   }
+=======
+    'Content-Type': 'application/json',
+  },
+>>>>>>> parent of 4e40cd62 (latest update on backend completion)
 });
 
 // Add token to requests
@@ -19,9 +28,13 @@ api.interceptors.request.use(
     }
     return config;
   },
+<<<<<<< HEAD
   (error) => {
     return Promise.reject(error);
   }
+=======
+  (error) => Promise.reject(error)
+>>>>>>> parent of 4e40cd62 (latest update on backend completion)
 );
 
 // Handle response errors
@@ -45,7 +58,11 @@ export const authAPI = {
   updateProfile: (data) => api.put('/auth/profile', data),
   forgotPassword: (email) => api.post('/auth/forgot-password', { email }),
   resetPassword: (data) => api.post('/auth/reset-password', data),
+<<<<<<< HEAD
   logout: () => api.post('/auth/logout')
+=======
+  logout: () => api.post('/auth/logout'),
+>>>>>>> parent of 4e40cd62 (latest update on backend completion)
 };
 
 export default api;

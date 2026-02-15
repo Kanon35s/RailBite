@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 import React, { useState } from 'react';
 import { useOrder } from '../context/OrderContext';
 import AdminSidebar from '../components/AdminSidebar';
@@ -47,6 +48,66 @@ const AdminNotifications = () => {
       message: '',
       targetUser: 'all',
     });
+=======
+// src/pages/AdminNotifications.js
+import React, { useState } from 'react';
+import AdminSidebar from '../components/AdminSidebar';
+import Toast from '../components/Toast';
+import api from '../services/api';
+
+const AdminNotifications = () => {
+  const [toast, setToast] = useState(null);
+  const [formData, setFormData] = useState({
+    title: '',
+    message: '',
+    targetGroup: 'all', // all | users | staff
+    link: '',
+  });
+
+  const handleChange = (e) => {
+    setFormData((prev) => ({
+      ...prev,
+      [e.target.name]: e.target.value,
+    }));
+  };
+
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    if (!formData.title.trim() || !formData.message.trim()) {
+      setToast({
+        message: 'Please fill in all fields',
+        type: 'error',
+      });
+      return;
+    }
+
+    try {
+      await api.post('/admin/notifications', {
+        title: formData.title,
+        message: formData.message,
+        targetGroup: formData.targetGroup,
+        link: formData.link || null,
+      });
+
+      setToast({
+        message: 'Notification sent successfully!',
+        type: 'success',
+      });
+
+      setFormData({
+        title: '',
+        message: '',
+        targetGroup: 'all',
+        link: '',
+      });
+    } catch (err) {
+      setToast({
+        message:
+          err.response?.data?.message || 'Failed to send notification',
+        type: 'error',
+      });
+    }
+>>>>>>> parent of 4e40cd62 (latest update on backend completion)
   };
 
   return (
@@ -54,13 +115,19 @@ const AdminNotifications = () => {
       <AdminSidebar />
       <div className="admin-content">
         <div className="admin-header">
+<<<<<<< HEAD
           <h1>🔔 Send Notifications</h1>
           <p>Send notifications to users</p>
+=======
+          <h1>Send Notifications</h1>
+          <p>Create notifications for users and delivery staff</p>
+>>>>>>> parent of 4e40cd62 (latest update on backend completion)
         </div>
 
         <div className="admin-form-container">
           <form onSubmit={handleSubmit} className="admin-form">
             <div className="form-group">
+<<<<<<< HEAD
               <label>Notification Type</label>
               <select
                 name="type"
@@ -84,6 +151,18 @@ const AdminNotifications = () => {
                 required
               >
                 <option value="all">All Users</option>
+=======
+              <label>Target Group</label>
+              <select
+                name="targetGroup"
+                value={formData.targetGroup}
+                onChange={handleChange}
+                required
+              >
+                <option value="all">All</option>
+                <option value="users">Users</option>
+                <option value="staff">Delivery Staff</option>
+>>>>>>> parent of 4e40cd62 (latest update on backend completion)
               </select>
             </div>
 
@@ -106,6 +185,7 @@ const AdminNotifications = () => {
                 value={formData.message}
                 onChange={handleChange}
                 placeholder="Enter your notification message..."
+<<<<<<< HEAD
                 rows="5"
                 required
               ></textarea>
@@ -113,10 +193,31 @@ const AdminNotifications = () => {
 
             <button type="submit" className="btn btn-primary btn-block">
               📤 Send Notification
+=======
+                rows={5}
+                required
+              />
+            </div>
+
+            <div className="form-group">
+              <label>Optional Link (e.g., /offers)</label>
+              <input
+                type="text"
+                name="link"
+                value={formData.link}
+                onChange={handleChange}
+                placeholder="/offers"
+              />
+            </div>
+
+            <button type="submit" className="btn btn-primary btn-block">
+              Send Notification
+>>>>>>> parent of 4e40cd62 (latest update on backend completion)
             </button>
           </form>
         </div>
 
+<<<<<<< HEAD
         {/* Recent Notifications */}
         <div style={{ marginTop: '3rem' }}>
           <h2 style={{ marginBottom: '1.5rem' }}>Recent Notifications Sent</h2>
@@ -161,6 +262,16 @@ const AdminNotifications = () => {
           onClose={() => setToast(null)}
         />
       )}
+=======
+        {toast && (
+          <Toast
+            message={toast.message}
+            type={toast.type}
+            onClose={() => setToast(null)}
+          />
+        )}
+      </div>
+>>>>>>> parent of 4e40cd62 (latest update on backend completion)
     </div>
   );
 };
