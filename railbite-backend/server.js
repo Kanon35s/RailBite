@@ -5,6 +5,9 @@ const connectDB = require('./config/db');
 const errorHandler = require('./middleware/errorHandler');
 const deliveryRoutes = require('./routes/deliveryRoutes');
 const adminUserRoutes = require('./routes/adminUserRoutes');
+const deliveryStaffRoutes = require('./routes/deliveryStaffRoutes');
+const adminMenuRoutes = require('./routes/adminMenuRoutes');
+const adminReportRoutes = require('./routes/adminReportRoutes');
 
 
 
@@ -36,8 +39,10 @@ app.use('/api/menu', require('./routes/menuRoutes'));
 app.use('/api/orders', require('./routes/orderRoutes'));
 app.use('/api/notifications', require('./routes/notificationRoutes'));
 app.use('/api/delivery', deliveryRoutes);
-app.use('/api/admin/users', adminUserRoutes);
-app.use('/api/admin', require('./routes/adminDashboardRoutes'));
+app.use('/api', adminUserRoutes);
+app.use('/api', deliveryStaffRoutes);
+app.use('/api', adminMenuRoutes);
+app.use('/api', adminReportRoutes);
 
 
 
