@@ -1,3 +1,7 @@
+const dns = require('dns');
+dns.setServers(['8.8.8.8', '8.8.4.4', '1.1.1.1']);
+dns.setDefaultResultOrder('ipv4first');
+
 const mongoose = require('mongoose');
 const dotenv = require('dotenv');
 
@@ -25,6 +29,21 @@ const seed = async () => {
   try {
     await connectDB();
 
+    // Drop problematic indexes if they exist
+    try {
+      await mongoose.connection.collection('orders').dropIndex('orderId_1');
+      console.log('Dropped orderId_1 index');
+    } catch (err) {
+      // Index doesn't exist, ignore
+    }
+
+    try {
+      await mongoose.connection.collection('deliverystaffs').dropIndex('staffId_1');
+      console.log('Dropped staffId_1 index');
+    } catch (err) {
+      // Index doesn't exist, ignore
+    }
+
     // 1) Admin user
     let admin = await User.findOne({ email: 'admin@railbite.com' });
 
@@ -40,7 +59,7 @@ const seed = async () => {
       console.log('Admin user already exists:', admin.email);
     }
 
-        // 2) Clear existing orders
+    // 2) Clear existing orders
     await Order.deleteMany({});
     console.log('Existing orders cleared');
 
@@ -58,9 +77,24 @@ const seed = async () => {
           { name: 'Chicken Biryani', price: 250, quantity: 2 },
           { name: 'Coke', price: 40, quantity: 2 }
         ],
-        totalAmount: 580,
-        status: 'delivered',
+        contactInfo: {
+          fullName: 'RailBite Admin',
+          email: 'admin@railbite.com',
+          phone: '01712345678'
+        },
+        orderType: 'train',
+        bookingDetails: {
+          trainNumber: '711',
+          coachNumber: 'B',
+          seatNumber: '12',
+          pickupStation: 'Dhaka'
+        },
         paymentMethod: 'cash',
+        subtotal: 580,
+        vat: 29,
+        deliveryFee: 50,
+        totalAmount: 659,
+        status: 'delivered',
         createdAt: today,
         updatedAt: today
       },
@@ -71,9 +105,24 @@ const seed = async () => {
           { name: 'Beef Burger', price: 200, quantity: 1 },
           { name: 'Fries', price: 80, quantity: 1 }
         ],
-        totalAmount: 280,
+        contactInfo: {
+          fullName: 'RailBite Admin',
+          email: 'admin@railbite.com',
+          phone: '01712345678'
+        },
+        orderType: 'train',
+        bookingDetails: {
+          trainNumber: '712',
+          coachNumber: 'A',
+          seatNumber: '5',
+          pickupStation: 'Chittagong'
+        },
+        paymentMethod: 'mobile',
+        subtotal: 280,
+        vat: 14,
+        deliveryFee: 50,
+        totalAmount: 344,
         status: 'pending',
-        paymentMethod: 'online',
         createdAt: today,
         updatedAt: today
       },
@@ -83,9 +132,24 @@ const seed = async () => {
         items: [
           { name: 'Chicken Pizza', price: 400, quantity: 1 }
         ],
-        totalAmount: 400,
-        status: 'delivered',
+        contactInfo: {
+          fullName: 'RailBite Admin',
+          email: 'admin@railbite.com',
+          phone: '01712345678'
+        },
+        orderType: 'station',
+        bookingDetails: {
+          trainNumber: '713',
+          coachNumber: 'C',
+          seatNumber: '20',
+          pickupStation: 'Sylhet'
+        },
         paymentMethod: 'card',
+        subtotal: 400,
+        vat: 20,
+        deliveryFee: 50,
+        totalAmount: 470,
+        status: 'delivered',
         createdAt: yesterday,
         updatedAt: yesterday
       }
@@ -151,18 +215,22 @@ const seed = async () => {
       // Snacks
       { name: 'Jhal Muri', category: 'snacks', price: 30, description: 'Spicy puffed rice mix', image: '/images/jhalmuri.png', available: true }
     ];
-      
-    await DeliveryStaff.deleteMany({});
-    const deliveryStaffData = [
-    { name: 'Karim Ahmed', phone: '01712345678', vehicleType: 'bike', vehicleNumber: 'DHA-1234', status: 'available', assignedOrders: 0, completedToday: 5 },
-    { name: 'Rahim Mia', phone: '01812345678', vehicleType: 'bike', vehicleNumber: 'DHA-5678', status: 'busy', assignedOrders: 1, completedToday: 3 },
-    { name: 'Salman Khan', phone: '01912345678', vehicleType: 'car', vehicleNumber: 'DHA-9012', status: 'available', assignedOrders: 0, completedToday: 7 }
-    ];
-    await DeliveryStaff.insertMany(deliveryStaffData);
-    console.log('Delivery staff inserted');
 
     await Menu.insertMany(menuItems);
     console.log('Menu items inserted');
+
+    // 5) Clear and seed delivery staff
+    await DeliveryStaff.deleteMany({});
+    console.log('Existing delivery staff cleared');
+
+    const deliveryStaffData = [
+      { name: 'Karim Ahmed', phone: '01712345678', vehicleType: 'bike', vehicleNumber: 'DHA-1234', status: 'available', assignedOrders: 0, completedToday: 5 },
+      { name: 'Rahim Mia', phone: '01812345678', vehicleType: 'bike', vehicleNumber: 'DHA-5678', status: 'busy', assignedOrders: 1, completedToday: 3 },
+      { name: 'Salman Khan', phone: '01912345678', vehicleType: 'car', vehicleNumber: 'DHA-9012', status: 'available', assignedOrders: 0, completedToday: 7 }
+    ];
+
+    await DeliveryStaff.insertMany(deliveryStaffData);
+    console.log('Delivery staff inserted');
 
     console.log('Seeding finished');
     process.exit(0);
