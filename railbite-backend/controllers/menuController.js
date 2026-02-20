@@ -41,7 +41,12 @@ exports.getMenuItem = async (req, res) => {
 // POST /api/menu - admin only
 exports.createMenuItem = async (req, res) => {
   try {
-    const item = await Menu.create(req.body);
+    const data = { ...req.body };
+    if (req.file) {
+      // Build a URL that the frontend can use to display the image
+      data.image = `${req.protocol}://${req.get('host')}/uploads/menu/${req.file.filename}`;
+    }
+    const item = await Menu.create(data);
     res.status(201).json({ success: true, data: item });
   } catch (error) {
     res.status(500).json({ success: false, message: error.message });
@@ -51,7 +56,11 @@ exports.createMenuItem = async (req, res) => {
 // PUT /api/menu/:id - admin only
 exports.updateMenuItem = async (req, res) => {
   try {
-    const item = await Menu.findByIdAndUpdate(req.params.id, req.body, {
+    const data = { ...req.body };
+    if (req.file) {
+      data.image = `${req.protocol}://${req.get('host')}/uploads/menu/${req.file.filename}`;
+    }
+    const item = await Menu.findByIdAndUpdate(req.params.id, data, {
       new: true,
       runValidators: true
     });

@@ -17,11 +17,12 @@ const Checkout = () => {
 
   const [paymentMethod, setPaymentMethod] = useState('cash');
 
-  const [contactInfo, setContactInfo] = useState({
-    fullName: user?.name || '',
-    email: user?.email || '',
-    phone: ''
-  });
+ const [contactInfo, setContactInfo] = useState({
+  fullName: user?.name || '',
+  email: user?.email || '',
+  phone: user?.phone || ''   
+});
+
 
   const [mobileBankingInfo, setMobileBankingInfo] = useState({
     provider: '',
@@ -43,9 +44,22 @@ const Checkout = () => {
     }
   }, [cart, navigate]);
 
+  useEffect(() => {
+  if (user) {
+    setContactInfo(prev => ({
+      ...prev,
+      fullName: user.name || prev.fullName,
+      email: user.email || prev.email,
+      phone: user.phone || prev.phone
+    }));
+  }
+}, [user]);
+
+
   const showToast = (message, type) => {
     setToast({ show: true, message, type });
   };
+
 
   const hideToast = () => {
     setToast({ show: false, message: '', type: '' });
@@ -300,6 +314,7 @@ const Checkout = () => {
                       onChange={handleContactChange}
                       placeholder="John Doe"
                       required
+                      readOnly
                     />
                   </div>
                   <div className="form-group">
@@ -311,6 +326,7 @@ const Checkout = () => {
                       onChange={handleContactChange}
                       placeholder="john@example.com"
                       required
+                      readOnly
                     />
                   </div>
                 </div>
@@ -323,6 +339,7 @@ const Checkout = () => {
                     onChange={handleContactChange}
                     placeholder="01712345678"
                     required
+                    readOnly
                   />
                 </div>
               </form>

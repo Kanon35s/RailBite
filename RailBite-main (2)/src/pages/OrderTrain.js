@@ -1,10 +1,13 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';  // 👈 add useEffect
 import { useNavigate } from 'react-router-dom';
 import { useOrder } from '../context/OrderContext';
+import { useAuth } from '../context/AuthContext';
 import BackButton from '../components/BackButton';
 import Toast from '../components/Toast';
 
 const OrderTrain = () => {
+  const { user } = useAuth();
+
   const [formData, setFormData] = useState({
     passengerName: '',
     phone: '',
@@ -12,6 +15,17 @@ const OrderTrain = () => {
     coachNumber: '',
     seatNumber: ''
   });
+
+  // 👇 THIS IS THE FIX — sync once user loads from AuthContext
+  useEffect(() => {
+    if (user) {
+      setFormData(prev => ({
+        ...prev,
+        passengerName: user.name || '',
+        phone: user.phone || ''
+      }));
+    }
+  }, [user]);  // runs whenever user changes (null → loaded user)
 
   const [toast, setToast] = useState(null);
   const { saveOrderType, saveBookingDetails } = useOrder();
@@ -26,7 +40,6 @@ const OrderTrain = () => {
 
   const handleSubmit = (e) => {
     e.preventDefault();
-
     if (
       !formData.passengerName ||
       !formData.phone ||
@@ -37,13 +50,9 @@ const OrderTrain = () => {
       setToast({ message: 'Please fill in all fields', type: 'error' });
       return;
     }
-
-    // Store lowercase orderType used by backend
     saveOrderType('train');
     saveBookingDetails({ ...formData, orderType: 'train' });
-
     setToast({ message: 'Details saved! Redirecting to menu...', type: 'success' });
-
     setTimeout(() => {
       navigate('/menu-categories', { state: { orderType: 'train' } });
     }, 1000);
@@ -65,29 +74,10 @@ const OrderTrain = () => {
           </div>
 
           <form className="booking-form" onSubmit={handleSubmit}>
-            <div className="form-group">
-              <label>Passenger Name</label>
-              <input
-                type="text"
-                name="passengerName"
-                value={formData.passengerName}
-                onChange={handleChange}
-                placeholder="Enter passenger name"
-                required
-              />
-            </div>
 
-            <div className="form-group">
-              <label>Phone Number</label>
-              <input
-                type="tel"
-                name="phone"
-                value={formData.phone}
-                onChange={handleChange}
-                placeholder="880 1XXX-XXXXXX"
-                required
-              />
-            </div>
+            {/* Hidden — auto-filled from login info */}
+            <input type="hidden" name="passengerName" value={formData.passengerName} />
+            <input type="hidden" name="phone" value={formData.phone} />
 
             <div className="form-group">
               <label>Train Number</label>
@@ -104,34 +94,19 @@ const OrderTrain = () => {
             <div className="form-row">
               <div className="form-group">
                 <label>Coach Number</label>
-                <select
-                  name="coachNumber"
-                  value={formData.coachNumber}
-                  onChange={handleChange}
-                  required
-                >
+                <select name="coachNumber" value={formData.coachNumber} onChange={handleChange} required>
                   <option value="">Select Coach</option>
                   {coachOptions.map((coach) => (
-                    <option key={coach} value={coach}>
-                      {coach}
-                    </option>
+                    <option key={coach} value={coach}>{coach}</option>
                   ))}
                 </select>
               </div>
-
               <div className="form-group">
                 <label>Seat Number</label>
-                <select
-                  name="seatNumber"
-                  value={formData.seatNumber}
-                  onChange={handleChange}
-                  required
-                >
+                <select name="seatNumber" value={formData.seatNumber} onChange={handleChange} required>
                   <option value="">Select Seat</option>
                   {seatOptions.map((seat) => (
-                    <option key={seat} value={seat}>
-                      {seat}
-                    </option>
+                    <option key={seat} value={seat}>{seat}</option>
                   ))}
                 </select>
               </div>
@@ -143,14 +118,7 @@ const OrderTrain = () => {
           </form>
         </div>
       </div>
-
-      {toast && (
-        <Toast
-          message={toast.message}
-          type={toast.type}
-          onClose={() => setToast(null)}
-        />
-      )}
+      {toast && <Toast message={toast.message} type={toast.type} onClose={() => setToast(null)} />}
     </div>
   );
 };

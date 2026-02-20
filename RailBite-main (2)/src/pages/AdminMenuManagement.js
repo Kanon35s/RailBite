@@ -21,6 +21,10 @@ const AdminMenuManagement = () => {
     available: true
   });
 
+  const [imageFile, setImageFile] = useState(null);
+const [imagePreview, setImagePreview] = useState('');
+
+
   const categories = useMemo(() => [
     'breakfast', 'lunch', 'dinner',
     'biryani', 'burger', 'pizza',
@@ -68,57 +72,65 @@ const AdminMenuManagement = () => {
     });
   };
 
-  const handleSubmit = async (e) => {
-    e.preventDefault();
-    setSaving(true);
+ 
+const handleSubmit = async (e) => {
+  e.preventDefault();
+  setSaving(true);
+  try {
+    const token = localStorage.getItem('railbite_token');
 
-    try {
-      const token = localStorage.getItem('railbite_token');
-      const payload = {
-        ...formData,
-        price: parseFloat(formData.price)
-      };
-
-      if (editingItem) {
-        // Update existing item
-        const res = await menuAPI.update(editingItem._id, payload, token);
-        if (res.data.success) {
-          setMenuItems(prev =>
-            prev.map(item =>
-              item._id === editingItem._id ? res.data.data : item
-            )
-          );
-          alert('Menu item updated successfully.');
-        }
-      } else {
-        // Create new item
-        const res = await menuAPI.create(payload, token);
-        if (res.data.success) {
-          setMenuItems(prev => [res.data.data, ...prev]);
-          alert('Menu item added successfully.');
-        }
-      }
-
-      resetForm();
-    } catch (err) {
-      alert(err.response?.data?.message || err.message || 'Failed to save item');
-    } finally {
-      setSaving(false);
+    const fd = new FormData();
+    fd.append('name', formData.name);
+    fd.append('price', parseFloat(formData.price));
+    fd.append('description', formData.description);
+    fd.append('category', formData.category);
+    fd.append('available', formData.available);
+    if (imageFile) {
+      fd.append('image', imageFile);
+    } else if (formData.image) {
+      // Keep existing image URL if no new file selected
+      fd.append('image', formData.image);
     }
-  };
+
+    if (editingItem) {
+      const res = await menuAPI.update(editingItem._id, fd, token);
+      if (res.data.success) {
+        setMenuItems(prev =>
+          prev.map(item =>
+            item._id === editingItem._id ? res.data.data : item
+          )
+        );
+        alert('Menu item updated successfully.');
+      }
+    } else {
+      const res = await menuAPI.create(fd, token);
+      if (res.data.success) {
+        setMenuItems(prev => [res.data.data, ...prev]);
+        alert('Menu item added successfully.');
+      }
+    }
+    resetForm();
+  } catch (err) {
+    alert(err.response?.data?.message || err.message || 'Failed to save item');
+  } finally {
+    setSaving(false);
+  }
+};
 
   const handleEdit = (item) => {
-    setEditingItem(item);
-    setFormData({
-      name: item.name,
-      price: item.price,
-      description: item.description,
-      category: item.category,
-      image: item.image,
-      available: item.available
-    });
-    setShowAddModal(true);
-  };
+  setEditingItem(item);
+  setFormData({
+    name: item.name,
+    price: item.price,
+    description: item.description,
+    category: item.category,
+    image: item.image,
+    available: item.available
+  });
+  setImageFile(null);
+  setImagePreview(item.image || '');
+  setShowAddModal(true);
+};
 
   const handleDelete = async (item) => {
     if (!window.confirm(`Delete "${item.name}"? This cannot be undone.`)) return;
@@ -149,18 +161,28 @@ const AdminMenuManagement = () => {
     }
   };
 
-  const resetForm = () => {
-    setFormData({
-      name: '',
-      price: '',
-      description: '',
-      category: 'breakfast',
-      image: '',
-      available: true
-    });
-    setEditingItem(null);
-    setShowAddModal(false);
-  };
+ const resetForm = () => {
+  setFormData({
+    name: '',
+    price: '',
+    description: '',
+    category: 'breakfast',
+    image: '',
+    available: true
+  });
+  setImageFile(null);
+  setImagePreview('');
+  setEditingItem(null);
+  setShowAddModal(false);
+};
+
+const handleImageChange = (e) => {
+  const file = e.target.files[0];
+  if (!file) return;
+  setImageFile(file);
+  setImagePreview(URL.createObjectURL(file));
+};
+
 
   if (loading) {
     return (
@@ -369,16 +391,30 @@ const AdminMenuManagement = () => {
                   />
                 </div>
 
-                <div className="admin-form-group">
-                  <label>Image URL</label>
-                  <input
-                    type="text"
-                    name="image"
-                    value={formData.image}
-                    onChange={handleInputChange}
-                    placeholder="/images/item.jpg"
-                  />
-                </div>
+               <div className="admin-form-group">
+  <label>Item Image</label>
+  <input
+    type="file"
+    accept="image/jpeg,image/jpg,image/png,image/webp"
+    onChange={handleImageChange}
+  />
+  {imagePreview && (
+    <div style={{ marginTop: '10px' }}>
+      <img
+        src={imagePreview}
+        alt="Preview"
+        style={{
+          width: '120px',
+          height: '90px',
+          objectFit: 'cover',
+          borderRadius: '8px',
+          border: '1px solid #444'
+        }}
+      />
+    </div>
+  )}
+</div>
+
 
                 <div className="admin-form-group">
                   <label className="admin-checkbox-label">

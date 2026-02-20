@@ -65,30 +65,31 @@ export const orderAPI = {
 export const menuAPI = {
   getAll: () =>
     axios.get(`${API_BASE_URL}/menu`),
-
   getByCategory: (category) =>
     axios.get(`${API_BASE_URL}/menu/category/${category}`),
-
   create: (data, token) =>
     axios.post(`${API_BASE_URL}/menu`, data, {
-      headers: { Authorization: `Bearer ${token}` }
+      headers: {
+        Authorization: `Bearer ${token}`,
+        // Don't set Content-Type — let axios set multipart/form-data automatically
+      }
     }),
-
   update: (id, data, token) =>
     axios.put(`${API_BASE_URL}/menu/${id}`, data, {
-      headers: { Authorization: `Bearer ${token}` }
+      headers: {
+        Authorization: `Bearer ${token}`,
+      }
     }),
-
   delete: (id, token) =>
     axios.delete(`${API_BASE_URL}/menu/${id}`, {
       headers: { Authorization: `Bearer ${token}` }
     }),
-
   toggleAvailability: (id, available, token) =>
     axios.put(`${API_BASE_URL}/menu/${id}`, { available }, {
       headers: { Authorization: `Bearer ${token}` }
     })
 };
+
 
 export const userAPI = {
   getAll: (token) =>

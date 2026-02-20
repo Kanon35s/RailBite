@@ -27,6 +27,10 @@ app.use(express.json());
 app.use(cors({ origin: 'http://localhost:3000', credentials: true }));
 app.use(morgan('dev'));
 app.use(cookieParser());
+const path = require('path');
+
+// Serve uploaded images statically
+app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
 
 // Simple health check
 app.get('/api/health', (req, res) => {

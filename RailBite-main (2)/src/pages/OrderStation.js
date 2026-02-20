@@ -1,10 +1,13 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';  // 👈 add useEffect
 import { useNavigate } from 'react-router-dom';
 import { useOrder } from '../context/OrderContext';
+import { useAuth } from '../context/AuthContext';
 import BackButton from '../components/BackButton';
 import Toast from '../components/Toast';
 
 const OrderStation = () => {
+  const { user } = useAuth();
+
   const [formData, setFormData] = useState({
     passengerName: '',
     phone: '',
@@ -14,21 +17,25 @@ const OrderStation = () => {
     seatNumber: ''
   });
 
+  // 👇 THE FIX
+  useEffect(() => {
+    if (user) {
+      setFormData(prev => ({
+        ...prev,
+        passengerName: user.name || '',
+        phone: user.phone || ''
+      }));
+    }
+  }, [user]);
+
   const [toast, setToast] = useState(null);
   const { saveOrderType, saveBookingDetails } = useOrder();
   const navigate = useNavigate();
 
   const stations = [
-    'Dhaka Kamalapur',
-    'Chittagong',
-    'Sylhet',
-    'Rajshahi',
-    'Comilla',
-    'Mymensingh',
-    'Khulna',
-    'Rangpur'
+    'Dhaka Kamalapur', 'Chittagong', 'Sylhet',
+    'Rajshahi', 'Comilla', 'Mymensingh', 'Khulna', 'Rangpur'
   ];
-
   const coachOptions = ['KA', 'KHA', 'GA', 'GHA', 'UMO', 'CHA', 'SHA', 'JA', 'JHA'];
   const seatOptions = Array.from({ length: 50 }, (_, i) => i + 1);
 
@@ -38,7 +45,6 @@ const OrderStation = () => {
 
   const handleSubmit = (e) => {
     e.preventDefault();
-
     if (
       !formData.passengerName ||
       !formData.phone ||
@@ -50,13 +56,9 @@ const OrderStation = () => {
       setToast({ message: 'Please fill in all fields', type: 'error' });
       return;
     }
-
-    // Store lowercase orderType used by backend
     saveOrderType('station');
     saveBookingDetails({ ...formData, orderType: 'station' });
-
     setToast({ message: 'Details saved! Redirecting to menu...', type: 'success' });
-
     setTimeout(() => {
       navigate('/menu-categories', { state: { orderType: 'station' } });
     }, 1000);
@@ -78,29 +80,10 @@ const OrderStation = () => {
           </div>
 
           <form className="booking-form" onSubmit={handleSubmit}>
-            <div className="form-group">
-              <label>Passenger Name</label>
-              <input
-                type="text"
-                name="passengerName"
-                value={formData.passengerName}
-                onChange={handleChange}
-                placeholder="Enter passenger name"
-                required
-              />
-            </div>
 
-            <div className="form-group">
-              <label>Phone Number</label>
-              <input
-                type="tel"
-                name="phone"
-                value={formData.phone}
-                onChange={handleChange}
-                placeholder="880 1XXX-XXXXXX"
-                required
-              />
-            </div>
+            {/* Hidden — auto-filled from login info */}
+            <input type="hidden" name="passengerName" value={formData.passengerName} />
+            <input type="hidden" name="phone" value={formData.phone} />
 
             <div className="form-group">
               <label>Train Number</label>
@@ -116,17 +99,10 @@ const OrderStation = () => {
 
             <div className="form-group">
               <label>Pickup Station</label>
-              <select
-                name="pickupStation"
-                value={formData.pickupStation}
-                onChange={handleChange}
-                required
-              >
+              <select name="pickupStation" value={formData.pickupStation} onChange={handleChange} required>
                 <option value="">Select station</option>
                 {stations.map((station) => (
-                  <option key={station} value={station}>
-                    {station}
-                  </option>
+                  <option key={station} value={station}>{station}</option>
                 ))}
               </select>
             </div>
@@ -134,34 +110,19 @@ const OrderStation = () => {
             <div className="form-row">
               <div className="form-group">
                 <label>Coach Number</label>
-                <select
-                  name="coachNumber"
-                  value={formData.coachNumber}
-                  onChange={handleChange}
-                  required
-                >
+                <select name="coachNumber" value={formData.coachNumber} onChange={handleChange} required>
                   <option value="">Select Coach</option>
                   {coachOptions.map((coach) => (
-                    <option key={coach} value={coach}>
-                      {coach}
-                    </option>
+                    <option key={coach} value={coach}>{coach}</option>
                   ))}
                 </select>
               </div>
-
               <div className="form-group">
                 <label>Seat Number</label>
-                <select
-                  name="seatNumber"
-                  value={formData.seatNumber}
-                  onChange={handleChange}
-                  required
-                >
+                <select name="seatNumber" value={formData.seatNumber} onChange={handleChange} required>
                   <option value="">Select Seat</option>
                   {seatOptions.map((seat) => (
-                    <option key={seat} value={seat}>
-                      {seat}
-                    </option>
+                    <option key={seat} value={seat}>{seat}</option>
                   ))}
                 </select>
               </div>
@@ -173,14 +134,7 @@ const OrderStation = () => {
           </form>
         </div>
       </div>
-
-      {toast && (
-        <Toast
-          message={toast.message}
-          type={toast.type}
-          onClose={() => setToast(null)}
-        />
-      )}
+      {toast && <Toast message={toast.message} type={toast.type} onClose={() => setToast(null)} />}
     </div>
   );
 };
