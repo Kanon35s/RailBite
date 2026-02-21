@@ -17,13 +17,10 @@ const AdminMenuManagement = () => {
     price: '',
     description: '',
     category: 'breakfast',
-    image: '',
     available: true
   });
-
   const [imageFile, setImageFile] = useState(null);
-const [imagePreview, setImagePreview] = useState('');
-
+  const [imagePreview, setImagePreview] = useState('');
 
   const categories = useMemo(() => [
     'breakfast', 'lunch', 'dinner',
@@ -72,65 +69,64 @@ const [imagePreview, setImagePreview] = useState('');
     });
   };
 
- 
-const handleSubmit = async (e) => {
-  e.preventDefault();
-  setSaving(true);
-  try {
-    const token = localStorage.getItem('railbite_token');
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    setSaving(true);
 
-    const fd = new FormData();
-    fd.append('name', formData.name);
-    fd.append('price', parseFloat(formData.price));
-    fd.append('description', formData.description);
-    fd.append('category', formData.category);
-    fd.append('available', formData.available);
-    if (imageFile) {
-      fd.append('image', imageFile);
-    } else if (formData.image) {
-      // Keep existing image URL if no new file selected
-      fd.append('image', formData.image);
-    }
+    try {
+      const token = localStorage.getItem('railbite_token');
 
-    if (editingItem) {
-      const res = await menuAPI.update(editingItem._id, fd, token);
-      if (res.data.success) {
-        setMenuItems(prev =>
-          prev.map(item =>
-            item._id === editingItem._id ? res.data.data : item
-          )
-        );
-        alert('Menu item updated successfully.');
+      const fd = new FormData();
+      fd.append('name', formData.name);
+      fd.append('price', parseFloat(formData.price));
+      fd.append('description', formData.description);
+      fd.append('category', formData.category);
+      fd.append('available', formData.available);
+      if (imageFile) {
+        fd.append('image', imageFile);
       }
-    } else {
-      const res = await menuAPI.create(fd, token);
-      if (res.data.success) {
-        setMenuItems(prev => [res.data.data, ...prev]);
-        alert('Menu item added successfully.');
+
+      if (editingItem) {
+        // Update existing item
+        const res = await menuAPI.update(editingItem._id, fd, token);
+        if (res.data.success) {
+          setMenuItems(prev =>
+            prev.map(item =>
+              item._id === editingItem._id ? res.data.data : item
+            )
+          );
+          alert('Menu item updated successfully.');
+        }
+      } else {
+        // Create new item
+        const res = await menuAPI.create(fd, token);
+        if (res.data.success) {
+          setMenuItems(prev => [res.data.data, ...prev]);
+          alert('Menu item added successfully.');
+        }
       }
+
+      resetForm();
+    } catch (err) {
+      alert(err.response?.data?.message || err.message || 'Failed to save item');
+    } finally {
+      setSaving(false);
     }
-    resetForm();
-  } catch (err) {
-    alert(err.response?.data?.message || err.message || 'Failed to save item');
-  } finally {
-    setSaving(false);
-  }
-};
+  };
 
   const handleEdit = (item) => {
-  setEditingItem(item);
-  setFormData({
-    name: item.name,
-    price: item.price,
-    description: item.description,
-    category: item.category,
-    image: item.image,
-    available: item.available
-  });
-  setImageFile(null);
-  setImagePreview(item.image || '');
-  setShowAddModal(true);
-};
+    setEditingItem(item);
+    setFormData({
+      name: item.name,
+      price: item.price,
+      description: item.description,
+      category: item.category,
+      available: item.available
+    });
+    setImageFile(null);
+    setImagePreview(item.image || '');
+    setShowAddModal(true);
+  };
 
   const handleDelete = async (item) => {
     if (!window.confirm(`Delete "${item.name}"? This cannot be undone.`)) return;
@@ -161,28 +157,19 @@ const handleSubmit = async (e) => {
     }
   };
 
- const resetForm = () => {
-  setFormData({
-    name: '',
-    price: '',
-    description: '',
-    category: 'breakfast',
-    image: '',
-    available: true
-  });
-  setImageFile(null);
-  setImagePreview('');
-  setEditingItem(null);
-  setShowAddModal(false);
-};
-
-const handleImageChange = (e) => {
-  const file = e.target.files[0];
-  if (!file) return;
-  setImageFile(file);
-  setImagePreview(URL.createObjectURL(file));
-};
-
+  const resetForm = () => {
+    setFormData({
+      name: '',
+      price: '',
+      description: '',
+      category: 'breakfast',
+      available: true
+    });
+    setImageFile(null);
+    setImagePreview('');
+    setEditingItem(null);
+    setShowAddModal(false);
+  };
 
   if (loading) {
     return (
@@ -205,7 +192,7 @@ const handleImageChange = (e) => {
         <div className="admin-content">
           <div className="admin-header">
             <h1>Menu Management</h1>
-            <p style={{ color: 'red' }}>Error: {error}</p>
+            <p className="admin-error-text">Error: {error}</p>
             <button className="admin-btn-primary" onClick={loadMenuItems}>
               Retry
             </button>
@@ -275,7 +262,13 @@ const handleImageChange = (e) => {
                     <tr key={item._id}>
                       <td>
                         <img
-                          src={item.image || '/images/placeholder.jpg'}
+                          src={
+                            item.image
+                              ? item.image.startsWith('/uploads')
+                                ? `http://localhost:5001${item.image}`
+                                : item.image
+                              : '/images/placeholder.jpg'
+                          }
                           alt={item.name}
                           className="admin-table-img"
                         />
@@ -318,7 +311,7 @@ const handleImageChange = (e) => {
                   ))
                 ) : (
                   <tr>
-                    <td colSpan="6" style={{ textAlign: 'center', padding: '20px' }}>
+                    <td colSpan="6" className="admin-empty-cell">
                       No menu items found
                     </td>
                   </tr>
@@ -391,30 +384,29 @@ const handleImageChange = (e) => {
                   />
                 </div>
 
-               <div className="admin-form-group">
-  <label>Item Image</label>
-  <input
-    type="file"
-    accept="image/jpeg,image/jpg,image/png,image/webp"
-    onChange={handleImageChange}
-  />
-  {imagePreview && (
-    <div style={{ marginTop: '10px' }}>
-      <img
-        src={imagePreview}
-        alt="Preview"
-        style={{
-          width: '120px',
-          height: '90px',
-          objectFit: 'cover',
-          borderRadius: '8px',
-          border: '1px solid #444'
-        }}
-      />
-    </div>
-  )}
-</div>
-
+                <div className="admin-form-group">
+                  <label>Image</label>
+                  <input
+                    type="file"
+                    accept="image/jpeg,image/png,image/gif,image/webp"
+                    className="admin-file-input"
+                    onChange={(e) => {
+                      const file = e.target.files[0];
+                      if (file) {
+                        setImageFile(file);
+                        setImagePreview(URL.createObjectURL(file));
+                      }
+                    }}
+                  />
+                  {imagePreview && (
+                    <div className="admin-image-preview">
+                      <img
+                        src={imagePreview.startsWith('blob:') ? imagePreview : `http://localhost:5001${imagePreview}`}
+                        alt="Preview"
+                      />
+                    </div>
+                  )}
+                </div>
 
                 <div className="admin-form-group">
                   <label className="admin-checkbox-label">
@@ -434,7 +426,8 @@ const handleImageChange = (e) => {
                     className="admin-btn-secondary"
                     onClick={resetForm}
                   >
-                                      </button>
+                    Cancel
+                  </button>
                   <button
                     type="submit"
                     className="admin-btn-primary"
@@ -443,8 +436,8 @@ const handleImageChange = (e) => {
                     {saving
                       ? 'Saving...'
                       : editingItem
-                      ? 'Update Item'
-                      : 'Add Item'}
+                        ? 'Update Item'
+                        : 'Add Item'}
                   </button>
                 </div>
               </form>

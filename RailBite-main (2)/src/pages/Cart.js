@@ -1,11 +1,22 @@
-import React from 'react';
+import React, { useMemo } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useCart } from '../context/CartContext';
+import { useMenu } from '../context/MenuContext';
 import BackButton from '../components/BackButton';
 
 const Cart = () => {
   const { cart, removeFromCart, updateQuantity, getSubtotal, getTotal, clearCart } = useCart();
+  const { menuItems } = useMenu();
   const navigate = useNavigate();
+
+  // Build a name→image lookup from menu data so old cart items can resolve images
+  const imageMap = useMemo(() => {
+    const map = {};
+    menuItems.forEach(item => {
+      if (item.image) map[item.name] = item.image;
+    });
+    return map;
+  }, [menuItems]);
 
   const subtotal = getSubtotal();
   const vat = Math.round(subtotal * 0.05);
@@ -25,7 +36,7 @@ const Cart = () => {
             <div className="empty-cart-icon">🛒</div>
             <h2>Your cart is empty</h2>
             <p>Add some delicious items to get started!</p>
-            <button 
+            <button
               className="btn btn-primary"
               onClick={() => navigate('/menu-categories')}
             >
@@ -49,19 +60,25 @@ const Cart = () => {
           <div className="cart-items">
             {cart.map(item => (
               <div key={item.id} className="cart-item">
-                <div className="item-image">{item.image || '🍽️'}</div>
+                <div className="item-image">
+                  {(item.image || imageMap[item.name]) ? (
+                    <img src={item.image || imageMap[item.name]} alt={item.name} style={{ width: '100%', height: '100%', objectFit: 'cover', borderRadius: '8px' }} />
+                  ) : (
+                    <span>🍽️</span>
+                  )}
+                </div>
                 <div className="item-details">
                   <h3 className="item-name">{item.name}</h3>
                   <p className="item-price">৳{item.price}</p>
                   <div className="item-quantity">
-                    <button 
+                    <button
                       className="qty-btn"
                       onClick={() => updateQuantity(item.id, -1)}
                     >
                       -
                     </button>
                     <span className="qty-value">{item.quantity}</span>
-                    <button 
+                    <button
                       className="qty-btn"
                       onClick={() => updateQuantity(item.id, 1)}
                     >
@@ -69,7 +86,7 @@ const Cart = () => {
                     </button>
                   </div>
                 </div>
-                <button 
+                <button
                   className="remove-btn"
                   onClick={() => removeFromCart(item.id)}
                 >
@@ -97,13 +114,13 @@ const Cart = () => {
               <span><strong>Total</strong></span>
               <span><strong>৳{total}</strong></span>
             </div>
-            <button 
+            <button
               className="btn btn-primary btn-block"
               onClick={() => navigate('/checkout')}
             >
               Proceed to Checkout
             </button>
-            <button 
+            <button
               className="btn btn-secondary btn-block"
               style={{ marginTop: '1rem' }}
               onClick={() => navigate('/menu-categories')}

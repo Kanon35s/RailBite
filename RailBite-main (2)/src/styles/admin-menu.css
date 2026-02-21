@@ -108,15 +108,7 @@
   border-color: var(--primary-orange);
 }
 
-/* Table container (reuses admin-card/admin-table from admin.css if present) */
-
-.admin-card {
-  background: var(--dark-card);
-  border-radius: 20px;
-  padding: 1.4rem 1.4rem 1.2rem;
-  border: 1px solid var(--border-dark);
-  box-shadow: var(--shadow-md);
-}
+/* Table container (reuses admin-card/admin-table from admin.css) */
 
 /* Table image & text */
 
@@ -344,6 +336,96 @@
 /* ========================================
    RESPONSIVE
 ======================================== */
+
+/* File input – dark theme */
+
+.admin-file-input {
+  padding: 0.6rem 0.9rem;
+  border-radius: 10px;
+  border: 1px solid var(--border-dark);
+  background: var(--dark-bg);
+  color: var(--text-white);
+  font-size: 0.9rem;
+  cursor: pointer;
+  transition: border-color 0.2s ease, box-shadow 0.2s ease;
+}
+
+.admin-file-input:hover {
+  border-color: var(--primary-orange);
+}
+
+.admin-file-input:focus {
+  outline: none;
+  border-color: var(--primary-orange);
+  box-shadow: 0 0 0 1px rgba(232, 126, 30, 0.35);
+}
+
+.admin-file-input::file-selector-button {
+  background: var(--primary-orange);
+  color: var(--text-white);
+  border: none;
+  padding: 0.4rem 0.8rem;
+  border-radius: 6px;
+  font-size: 0.85rem;
+  font-weight: 600;
+  cursor: pointer;
+  margin-right: 0.7rem;
+  transition: background 0.2s ease;
+}
+
+.admin-file-input::file-selector-button:hover {
+  background: #ff8f3a;
+}
+
+/* Image preview */
+
+.admin-image-preview {
+  margin-top: 0.5rem;
+}
+
+.admin-image-preview img {
+  width: 120px;
+  height: 80px;
+  object-fit: cover;
+  border-radius: 8px;
+  border: 1px solid var(--border-dark);
+}
+
+/* Error text */
+
+.admin-error-text {
+  color: var(--danger);
+  font-size: 0.95rem;
+}
+
+/* Empty table cell */
+
+.admin-empty-cell {
+  text-align: center;
+  padding: 20px;
+  color: var(--text-gray);
+}
+
+/* Toast messages */
+
+.admin-toast {
+  padding: 0.7rem 1rem;
+  border-radius: 10px;
+  font-size: 0.9rem;
+  font-weight: 500;
+}
+
+.admin-toast-success {
+  background: rgba(76, 175, 80, 0.15);
+  color: #a5e6ae;
+  border: 1px solid rgba(76, 175, 80, 0.4);
+}
+
+.admin-toast-error {
+  background: rgba(244, 67, 54, 0.15);
+  color: #ffb3b3;
+  border: 1px solid rgba(244, 67, 54, 0.4);
+}
 
 @media (max-width: 768px) {
   .admin-form-row {

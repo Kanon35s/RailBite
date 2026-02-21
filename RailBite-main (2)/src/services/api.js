@@ -57,6 +57,16 @@ export const orderAPI = {
   cancel: (id, token) =>
     axios.patch(`${API_BASE_URL}/orders/${id}/cancel`, {}, {
       headers: { Authorization: `Bearer ${token}` }
+    }),
+
+  assignStaff: (orderId, staffId, token) =>
+    axios.post(`${API_BASE_URL}/orders/${orderId}/assign`, { staffId }, {
+      headers: { Authorization: `Bearer ${token}` }
+    }),
+
+  getAssignmentStats: (token) =>
+    axios.get(`${API_BASE_URL}/orders/assignment-stats`, {
+      headers: { Authorization: `Bearer ${token}` }
     })
 };
 
@@ -65,31 +75,36 @@ export const orderAPI = {
 export const menuAPI = {
   getAll: () =>
     axios.get(`${API_BASE_URL}/menu`),
+
   getByCategory: (category) =>
     axios.get(`${API_BASE_URL}/menu/category/${category}`),
+
   create: (data, token) =>
     axios.post(`${API_BASE_URL}/menu`, data, {
       headers: {
         Authorization: `Bearer ${token}`,
-        // Don't set Content-Type — let axios set multipart/form-data automatically
+        'Content-Type': 'multipart/form-data'
       }
     }),
+
   update: (id, data, token) =>
     axios.put(`${API_BASE_URL}/menu/${id}`, data, {
       headers: {
         Authorization: `Bearer ${token}`,
+        'Content-Type': 'multipart/form-data'
       }
     }),
+
   delete: (id, token) =>
     axios.delete(`${API_BASE_URL}/menu/${id}`, {
       headers: { Authorization: `Bearer ${token}` }
     }),
+
   toggleAvailability: (id, available, token) =>
     axios.put(`${API_BASE_URL}/menu/${id}`, { available }, {
       headers: { Authorization: `Bearer ${token}` }
     })
 };
-
 
 export const userAPI = {
   getAll: (token) =>
@@ -129,6 +144,10 @@ export const deliveryStaffAPI = {
     axios.get(`${API_BASE_URL}/delivery-staff`, {
       headers: { Authorization: `Bearer ${token}` }
     }),
+  getAvailable: (token) =>
+    axios.get(`${API_BASE_URL}/delivery-staff/available`, {
+      headers: { Authorization: `Bearer ${token}` }
+    }),
   create: (data, token) =>
     axios.post(`${API_BASE_URL}/delivery-staff`, data, {
       headers: { Authorization: `Bearer ${token}` }
@@ -155,20 +174,93 @@ export const reportAPI = {
 };
 
 export const notificationAPI = {
+  // Get my notifications (any authenticated user)
+  getMyNotifications: (token) =>
+    axios.get(`${API_BASE_URL}/notifications/my`, {
+      headers: { Authorization: `Bearer ${token}` }
+    }),
+
+  // Get unread count (any authenticated user)
+  getUnreadCount: (token) =>
+    axios.get(`${API_BASE_URL}/notifications/unread-count`, {
+      headers: { Authorization: `Bearer ${token}` }
+    }),
+
+  // Mark single notification as read
+  markAsRead: (id, token) =>
+    axios.patch(`${API_BASE_URL}/notifications/${id}/read`, {}, {
+      headers: { Authorization: `Bearer ${token}` }
+    }),
+
+  // Mark all as read
+  markAllAsRead: (token) =>
+    axios.patch(`${API_BASE_URL}/notifications/read-all`, {}, {
+      headers: { Authorization: `Bearer ${token}` }
+    }),
+
+  // Admin: get all notifications
   getAll: (token) =>
     axios.get(`${API_BASE_URL}/notifications`, {
       headers: { Authorization: `Bearer ${token}` }
     }),
-  getCustomer: (token) =>
-    axios.get(`${API_BASE_URL}/notifications/customer`, {
-      headers: { Authorization: `Bearer ${token}` }
-    }),
+
+  // Admin: send broadcast notification
   send: (data, token) =>
     axios.post(`${API_BASE_URL}/notifications`, data, {
       headers: { Authorization: `Bearer ${token}` }
     }),
+
+  // Admin: delete notification
   delete: (id, token) =>
     axios.delete(`${API_BASE_URL}/notifications/${id}`, {
+      headers: { Authorization: `Bearer ${token}` }
+    })
+};
+
+// Delivery Staff Portal API
+export const deliveryPortalAPI = {
+  getMyStats: (token) =>
+    axios.get(`${API_BASE_URL}/delivery-portal/stats`, {
+      headers: { Authorization: `Bearer ${token}` }
+    }),
+
+  getMyActiveOrders: (token) =>
+    axios.get(`${API_BASE_URL}/delivery-portal/active-orders`, {
+      headers: { Authorization: `Bearer ${token}` }
+    }),
+
+  getActiveDelivery: (token) =>
+    axios.get(`${API_BASE_URL}/delivery-portal/active-delivery`, {
+      headers: { Authorization: `Bearer ${token}` }
+    }),
+
+  getMyOrders: (token) =>
+    axios.get(`${API_BASE_URL}/delivery-portal/my-orders`, {
+      headers: { Authorization: `Bearer ${token}` }
+    }),
+
+  getMyHistory: (token, range = 'today') =>
+    axios.get(`${API_BASE_URL}/delivery-portal/history?range=${range}`, {
+      headers: { Authorization: `Bearer ${token}` }
+    }),
+
+  getOrderDetail: (id, token) =>
+    axios.get(`${API_BASE_URL}/delivery-portal/orders/${id}`, {
+      headers: { Authorization: `Bearer ${token}` }
+    }),
+
+  updateDeliveryStatus: (id, data, token) =>
+    axios.patch(`${API_BASE_URL}/delivery-portal/orders/${id}/status`, data, {
+      headers: { Authorization: `Bearer ${token}` }
+    }),
+
+  getMyProfile: (token) =>
+    axios.get(`${API_BASE_URL}/delivery-portal/profile`, {
+      headers: { Authorization: `Bearer ${token}` }
+    }),
+
+  updateMyProfile: (data, token) =>
+    axios.put(`${API_BASE_URL}/delivery-portal/profile`, data, {
       headers: { Authorization: `Bearer ${token}` }
     })
 };
@@ -189,6 +281,38 @@ export const contactAPI = {
 
   delete: (id, token) =>
     axios.delete(`${API_BASE_URL}/contact/${id}`, {
+      headers: { Authorization: `Bearer ${token}` }
+    })
+};
+
+export const reviewAPI = {
+  create: (data, token) =>
+    axios.post(`${API_BASE_URL}/reviews`, data, {
+      headers: { Authorization: `Bearer ${token}` }
+    }),
+
+  getByOrder: (orderId, token) =>
+    axios.get(`${API_BASE_URL}/reviews/order/${orderId}`, {
+      headers: { Authorization: `Bearer ${token}` }
+    }),
+
+  getMyReviews: (token) =>
+    axios.get(`${API_BASE_URL}/reviews/my-reviews`, {
+      headers: { Authorization: `Bearer ${token}` }
+    }),
+
+  getAll: (token) =>
+    axios.get(`${API_BASE_URL}/reviews`, {
+      headers: { Authorization: `Bearer ${token}` }
+    }),
+
+  getStats: (token) =>
+    axios.get(`${API_BASE_URL}/reviews/stats`, {
+      headers: { Authorization: `Bearer ${token}` }
+    }),
+
+  delete: (id, token) =>
+    axios.delete(`${API_BASE_URL}/reviews/${id}`, {
       headers: { Authorization: `Bearer ${token}` }
     })
 };

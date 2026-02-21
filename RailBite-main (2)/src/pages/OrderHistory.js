@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import BackButton from '../components/BackButton';
-import { orderAPI } from '../services/api';
+import { orderAPI, reviewAPI } from '../services/api';
 
 function OrderHistory() {
   const navigate = useNavigate();
@@ -9,6 +9,7 @@ function OrderHistory() {
   const [filterStatus, setFilterStatus] = useState('all');
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+  const [reviewedOrders, setReviewedOrders] = useState({});
 
   useEffect(() => {
     fetchMyOrders();
@@ -27,6 +28,18 @@ function OrderHistory() {
       const res = await orderAPI.getMyOrders(token);
       if (res.data.success) {
         setOrders(res.data.data || []);
+        // Check which delivered orders have been reviewed
+        const delivered = (res.data.data || []).filter(o => o.status === 'delivered');
+        const reviewChecks = {};
+        for (const o of delivered) {
+          try {
+            const rRes = await reviewAPI.getByOrder(o._id, token);
+            if (rRes.data.success && rRes.data.data) {
+              reviewChecks[o._id] = true;
+            }
+          } catch (e) { /* not reviewed */ }
+        }
+        setReviewedOrders(reviewChecks);
       } else {
         setError(res.data.message || 'Failed to load orders');
       }
@@ -199,6 +212,23 @@ function OrderHistory() {
                       >
                         👁️ View Details
                       </button>
+                      {order.status === 'delivered' && (
+                        reviewedOrders[order._id] ? (
+                          <button
+                            className="btn-rated btn-sm"
+                            onClick={() => navigate(`/review/${order._id}`)}
+                          >
+                            ⭐ Reviewed
+                          </button>
+                        ) : (
+                          <button
+                            className="btn-rate btn-sm"
+                            onClick={() => navigate(`/review/${order._id}`)}
+                          >
+                            ⭐ Rate Order
+                          </button>
+                        )
+                      )}
                     </div>
                   </div>
                 </div>

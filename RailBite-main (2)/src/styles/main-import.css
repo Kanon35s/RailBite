@@ -62,3 +62,12 @@
 @import './admin-dashboard.css';
 @import './admin-menu.css';
 @import './admin-orders.css';
+
+/* Delivery Staff Section */
+@import './delivery-staff.css';
+
+/* User Sidebar */
+@import './user-sidebar.css';
+
+/* Review / Rating */
+@import './review.css';

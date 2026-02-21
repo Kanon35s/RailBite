@@ -66,7 +66,7 @@ const BreakfastMenu = () => {
           const mappedCore = res.data.data.map((item) => ({
             name: item.name,
             price: item.price,
-            image: item.image,
+            image: item.image?.startsWith('/uploads') ? API_URL.replace('/api', '') + item.image : item.image,
             description: item.description,
             hasSubmenu: false,
           }));
@@ -150,7 +150,7 @@ const BreakfastMenu = () => {
     if (item.hasSubmenu && item.path) {
       navigate(item.path);
     } else {
-      addToCart(item.name, item.price);
+      addToCart(item.name, item.price, item.image);
       setToast({ message: `${item.name} added to cart!`, type: 'success' });
     }
   };
@@ -223,9 +223,8 @@ const BreakfastMenu = () => {
                     <span className="menu-item-price">৳{item.price}</span>
                   )}
                   <button
-                    className={`btn ${
-                      item.hasSubmenu ? 'btn-explore' : 'btn-primary btn-sm'
-                    }`}
+                    className={`btn ${item.hasSubmenu ? 'btn-explore' : 'btn-primary btn-sm'
+                      }`}
                     onClick={() => handleItemClick(item)}
                   >
                     {item.hasSubmenu ? 'Explore' : 'Add'}

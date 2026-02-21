@@ -1,50 +1,82 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { notificationAPI } from '../services/api';
 
 function Notifications() {
   const [notifications, setNotifications] = useState([]);
   const [filter, setFilter] = useState('all');
+  const [loading, setLoading] = useState(true);
   const navigate = useNavigate();
 
-  useEffect(() => {
-    const savedNotifications = localStorage.getItem('railbiteNotifications');
-    if (savedNotifications) {
-      setNotifications(JSON.parse(savedNotifications));
+  const getToken = () =>
+    localStorage.getItem('railbiteToken') ||
+    localStorage.getItem('railbite_token') ||
+    null;
+
+  const fetchNotifications = useCallback(async () => {
+    const token = getToken();
+    if (!token) {
+      setLoading(false);
+      return;
+    }
+    try {
+      setLoading(true);
+      const res = await notificationAPI.getMyNotifications(token);
+      if (res.data.success) {
+        setNotifications(res.data.data || []);
+      }
+    } catch (err) {
+      console.error('Failed to fetch notifications:', err.message);
+    } finally {
+      setLoading(false);
     }
   }, []);
 
-  const saveNotifications = (updatedNotifications) => {
-    setNotifications(updatedNotifications);
-    localStorage.setItem('railbiteNotifications', JSON.stringify(updatedNotifications));
+  useEffect(() => {
+    fetchNotifications();
+  }, [fetchNotifications]);
+
+  const markAsRead = async (id) => {
+    const token = getToken();
+    if (!token) return;
+    try {
+      await notificationAPI.markAsRead(id, token);
+      setNotifications(prev =>
+        prev.map(n => n._id === id ? { ...n, read: true } : n)
+      );
+    } catch (err) {
+      console.error('Failed to mark as read:', err.message);
+    }
   };
 
-  const markAsRead = (id) => {
-    const updated = notifications.map((n) =>
-      n.id === id ? { ...n, read: true } : n
-    );
-    saveNotifications(updated);
-  };
-
-  const markAllAsRead = () => {
-    const updated = notifications.map((n) => ({ ...n, read: true }));
-    saveNotifications(updated);
-  };
-
-  const deleteNotification = (id) => {
-    const updated = notifications.filter((n) => n.id !== id);
-    saveNotifications(updated);
-  };
-
-  const clearAll = () => {
-    setNotifications([]);
-    localStorage.removeItem('railbiteNotifications');
+  const markAllAsRead = async () => {
+    const token = getToken();
+    if (!token) return;
+    try {
+      await notificationAPI.markAllAsRead(token);
+      setNotifications(prev => prev.map(n => ({ ...n, read: true })));
+    } catch (err) {
+      console.error('Failed to mark all as read:', err.message);
+    }
   };
 
   const handleNotificationClick = (notification) => {
-    markAsRead(notification.id);
-    if (notification.link) {
-      navigate(notification.link);
+    markAsRead(notification._id);
+    if (notification.relatedOrder) {
+      navigate(`/order-details/${notification.relatedOrder}`);
     }
+  };
+
+  const getIcon = (type) => {
+    const icons = {
+      promotion: '🎉',
+      alert: '⚠️',
+      order: '📦',
+      delivery: '🚚',
+      info: 'ℹ️',
+      system: '🔧'
+    };
+    return icons[type] || '🔔';
   };
 
   const getRelativeTime = (dateString) => {
@@ -90,6 +122,19 @@ function Notifications() {
   const unreadCount = notifications.filter((n) => !n.read).length;
   const readCount = notifications.filter((n) => n.read).length;
 
+  if (loading) {
+    return (
+      <div className="notifications-page">
+        <div className="container">
+          <div className="notifications-header">
+            <h1>Notifications</h1>
+            <p className="notifications-subtitle">Loading...</p>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
   return (
     <div className="notifications-page">
       <div className="container">
@@ -97,7 +142,7 @@ function Notifications() {
           <div>
             <h1>Notifications</h1>
             <p className="notifications-subtitle">
-              {unreadCount > 0 
+              {unreadCount > 0
                 ? 'You have ' + unreadCount + ' unread notification' + (unreadCount > 1 ? 's' : '')
                 : 'All caught up!'}
             </p>
@@ -106,11 +151,6 @@ function Notifications() {
             {notifications.length > 0 && unreadCount > 0 && (
               <button className="btn-secondary" onClick={markAllAsRead}>
                 Mark all as read
-              </button>
-            )}
-            {notifications.length > 0 && (
-              <button className="btn-danger-outline" onClick={clearAll}>
-                Clear all
               </button>
             )}
           </div>
@@ -141,11 +181,13 @@ function Notifications() {
           {filteredNotifications.length > 0 ? (
             filteredNotifications.map((notification) => (
               <div
-                key={notification.id}
+                key={notification._id}
                 className={'notification-card ' + (!notification.read ? 'unread' : '')}
+                onClick={() => handleNotificationClick(notification)}
+                style={{ cursor: notification.relatedOrder ? 'pointer' : 'default' }}
               >
                 <div className="notification-card-icon">
-                  {notification.icon}
+                  {getIcon(notification.type)}
                 </div>
                 <div className="notification-card-content">
                   <div className="notification-card-header">
@@ -155,17 +197,20 @@ function Notifications() {
                   <p className="notification-card-message">{notification.message}</p>
                   <div className="notification-card-footer">
                     <span className="notification-card-time">
-                      {getRelativeTime(notification.time)}
+                      {getRelativeTime(notification.createdAt)}
                     </span>
                     <span className="notification-card-date">
-                      {getFullDate(notification.time)}
+                      {getFullDate(notification.createdAt)}
                     </span>
                   </div>
                   <div className="notification-card-actions">
-                    {notification.link && (
+                    {notification.relatedOrder && (
                       <button
                         className="btn-link-small"
-                        onClick={() => handleNotificationClick(notification)}
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          handleNotificationClick(notification);
+                        }}
                       >
                         View details →
                       </button>
@@ -173,17 +218,14 @@ function Notifications() {
                     {!notification.read && (
                       <button
                         className="btn-link-small"
-                        onClick={() => markAsRead(notification.id)}
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          markAsRead(notification._id);
+                        }}
                       >
                         Mark as read
                       </button>
                     )}
-                    <button
-                      className="btn-link-small danger"
-                      onClick={() => deleteNotification(notification.id)}
-                    >
-                      Delete
-                    </button>
                   </div>
                 </div>
               </div>

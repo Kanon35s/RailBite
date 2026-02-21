@@ -89,6 +89,14 @@ const AdminSidebar = () => {
           <span className="admin-nav-icon">📩</span>
           <span>Contact Messages</span>
         </NavLink>
+
+        <NavLink
+          to="/admin/reviews"
+          className={({ isActive }) => isActive ? 'admin-nav-link active' : 'admin-nav-link'}
+        >
+          <span className="admin-nav-icon">⭐</span>
+          <span>Reviews</span>
+        </NavLink>
       </nav>
 
       <div className="admin-sidebar-footer">

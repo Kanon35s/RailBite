@@ -1,11 +1,12 @@
-import React, { useState } from 'react';
+import React, { useState, useCallback } from 'react';
 import { Link, useNavigate, useLocation } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import { useCart } from '../context/CartContext';
 import NotificationBell from './NotificationBell';
+import UserSidebar from './UserSidebar';
 
 const Navbar = () => {
-  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+  const [sidebarOpen, setSidebarOpen] = useState(false);
   const { isAuthenticated } = useAuth();
   const { getCartCount } = useCart();
   const navigate = useNavigate();
@@ -19,22 +20,25 @@ const Navbar = () => {
     return location.pathname === path;
   };
 
+  const closeSidebar = useCallback(() => setSidebarOpen(false), []);
+
   return (
-    <nav className="navbar">
-      <div className="container">
-        <div className="nav-wrapper">
+    <>
+      <nav className="navbar">
+        <div className="container">
+          <div className="nav-wrapper">
 
-          {/* Logo */}
-          <div className="logo" onClick={handleLogoClick}>
-            <img
-              src="/images/logo.png"
-              alt="RailBite Logo"
-              style={{ width: '135px', height: '45px', objectFit: 'contain', cursor: 'pointer' }}
-            />
-          </div>
+            {/* Logo */}
+            <div className="logo" onClick={handleLogoClick}>
+              <img
+                src="/images/logo.png"
+                alt="RailBite Logo"
+                style={{ width: '135px', height: '45px', objectFit: 'contain', cursor: 'pointer' }}
+              />
+            </div>
 
-          {/* Navigation Menu */}
-            <ul className={`nav-menu ${mobileMenuOpen ? 'active' : ''}`} id="navMenu">
+            {/* Navigation Menu (desktop only) */}
+            <ul className="nav-menu" id="navMenu">
               <li>
                 <Link to="/" className={isActive('/') ? 'active' : ''}>
                   Home
@@ -70,64 +74,52 @@ const Navbar = () => {
             </ul>
 
 
-          {/* Right Side Icons - only shown when authenticated */}
-          <div style={{ display: 'flex', alignItems: 'center', gap: '1.5rem' }}>
-            {isAuthenticated() && (
-              <>
-                {/* My Orders link */}
+            {/* Right Side Icons */}
+            <div style={{ display: 'flex', alignItems: 'center', gap: '1.5rem' }}>
+              {isAuthenticated() && (
+                <>
+                  {/* Notification Bell */}
+                  <NotificationBell />
 
-                {/* Notification Bell */}
-                <NotificationBell />
+                  {/* Cart Icon */}
+                  <div
+                    className="cart-icon"
+                    onClick={() => navigate('/cart')}
+                    style={{ position: 'relative', cursor: 'pointer' }}
+                  >
+                    <img
+                      src="/images/shopping-cart.png"
+                      alt="Cart"
+                      style={{ width: '28px', height: '28px', objectFit: 'contain' }}
+                    />
+                    {getCartCount() > 0 && (
+                      <span className="cart-badge" id="cartCount">
+                        {getCartCount()}
+                      </span>
+                    )}
+                  </div>
+                </>
+              )}
 
-                {/* Cart Icon */}
-                <div
-                  className="cart-icon"
-                  onClick={() => navigate('/cart')}
-                  style={{ position: 'relative', cursor: 'pointer' }}
-                >
-                  <img
-                    src="/images/shopping-cart.png"
-                    alt="Cart"
-                    style={{ width: '28px', height: '28px', objectFit: 'contain' }}
-                  />
-                  {getCartCount() > 0 && (
-                    <span className="cart-badge" id="cartCount">
-                      {getCartCount()}
-                    </span>
-                  )}
-                </div>
-
-                {/* Profile Icon */}
-                <div
-                  className="user-icon"
-                  id="profileIcon"
-                  onClick={() => navigate('/profile')}
-                  style={{ cursor: 'pointer' }}
-                >
-                  <img
-                    src="/images/profile.png"
-                    alt="Profile"
-                    style={{ width: '28px', height: '28px', objectFit: 'contain' }}
-                  />
-                </div>
-              </>
-            )}
-
-            {/* Hamburger Menu */}
-            <div
-              className={`hamburger ${mobileMenuOpen ? 'active' : ''}`}
-              id="hamburger"
-              onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-            >
-              <span></span>
-              <span></span>
-              <span></span>
+              {/* Sidebar Toggle - always visible */}
+              <button
+                className="sidebar-toggle-btn"
+                onClick={() => setSidebarOpen(!sidebarOpen)}
+                aria-label="Open menu"
+              >
+                <span></span>
+                <span></span>
+                <span></span>
+              </button>
             </div>
-          </div>
 
+          </div>
         </div>
-      </div>
-    </nav>
+      </nav>
+
+      {/* User Sidebar */}
+      <UserSidebar isOpen={sidebarOpen} onClose={closeSidebar} />
+    </>
   );
 };
 

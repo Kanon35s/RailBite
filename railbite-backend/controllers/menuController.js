@@ -4,7 +4,7 @@ const Menu = require('../models/Menu');
 exports.getAllMenu = async (req, res) => {
   try {
     const { category } = req.query;
-    const filter = category ? { category } : {};
+    const filter = category ? { category, available: true } : {};
     const items = await Menu.find(filter).sort({ createdAt: -1 });
     res.json({ success: true, data: items });
   } catch (error) {
@@ -43,8 +43,7 @@ exports.createMenuItem = async (req, res) => {
   try {
     const data = { ...req.body };
     if (req.file) {
-      // Build a URL that the frontend can use to display the image
-      data.image = `${req.protocol}://${req.get('host')}/uploads/menu/${req.file.filename}`;
+      data.image = `/uploads/menu/${req.file.filename}`;
     }
     const item = await Menu.create(data);
     res.status(201).json({ success: true, data: item });
@@ -58,7 +57,7 @@ exports.updateMenuItem = async (req, res) => {
   try {
     const data = { ...req.body };
     if (req.file) {
-      data.image = `${req.protocol}://${req.get('host')}/uploads/menu/${req.file.filename}`;
+      data.image = `/uploads/menu/${req.file.filename}`;
     }
     const item = await Menu.findByIdAndUpdate(req.params.id, data, {
       new: true,

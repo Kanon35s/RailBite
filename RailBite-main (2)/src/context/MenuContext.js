@@ -12,6 +12,13 @@ export const useMenu = () => {
 };
 
 const API_URL = process.env.REACT_APP_API_URL || 'http://localhost:5001/api';
+const BACKEND_BASE = API_URL.replace('/api', '');
+
+const resolveImage = (img) =>
+  img?.startsWith('/uploads') ? `${BACKEND_BASE}${img}` : img;
+
+const resolveItemImages = (items) =>
+  items.map((item) => ({ ...item, image: resolveImage(item.image) }));
 
 export const MenuProvider = ({ children }) => {
   const [menuItems, setMenuItems] = useState([]);
@@ -25,10 +32,10 @@ export const MenuProvider = ({ children }) => {
       setLoading(true);
       setError(null);
       const response = await axios.get(`${API_URL}/menu`);
-      
+
       if (response.data.success) {
-        setMenuItems(response.data.data);
-        
+        setMenuItems(resolveItemImages(response.data.data));
+
         // Extract unique categories
         const uniqueCategories = [...new Set(response.data.data.map(item => item.category))];
         setCategories(uniqueCategories);
@@ -47,9 +54,9 @@ export const MenuProvider = ({ children }) => {
       setLoading(true);
       setError(null);
       const response = await axios.get(`${API_URL}/menu/category/${category}`);
-      
+
       if (response.data.success) {
-        return response.data.data;
+        return resolveItemImages(response.data.data);
       }
       return [];
     } catch (error) {
@@ -67,7 +74,7 @@ export const MenuProvider = ({ children }) => {
       setLoading(true);
       setError(null);
       const response = await axios.get(`${API_URL}/menu/${id}`);
-      
+
       if (response.data.success) {
         return response.data.data;
       }
@@ -83,7 +90,7 @@ export const MenuProvider = ({ children }) => {
 
   // Get menu items by category from cached data
   const getItemsByCategory = (category) => {
-    return menuItems.filter(item => 
+    return menuItems.filter(item =>
       item.category.toLowerCase() === category.toLowerCase() && item.available
     );
   };

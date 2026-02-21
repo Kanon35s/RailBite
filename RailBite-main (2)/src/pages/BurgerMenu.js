@@ -60,7 +60,7 @@ const BurgerMenu = () => {
           const mapped = res.data.data.map((item) => ({
             name: item.name,
             price: item.price,
-            image: item.image,
+            image: item.image?.startsWith('/uploads') ? API_URL.replace('/api', '') + item.image : item.image,
             description: item.description,
           }));
           setBackendItems(mapped);
@@ -123,8 +123,8 @@ const BurgerMenu = () => {
     return filtered;
   }, [burgerItems, searchQuery, sortBy, priceRange]);
 
-  const handleAddToCart = (name, price) => {
-    addToCart(name, price);
+  const handleAddToCart = (name, price, image) => {
+    addToCart(name, price, image);
     setToast({ message: `${name} added to cart!`, type: 'success' });
   };
 
@@ -216,7 +216,7 @@ const BurgerMenu = () => {
                 <p className="price">৳{item.price}</p>
                 <button
                   className="btn btn-primary"
-                  onClick={() => handleAddToCart(item.name, item.price)}
+                  onClick={() => handleAddToCart(item.name, item.price, item.image)}
                 >
                   Order Now
                 </button>

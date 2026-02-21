@@ -14,8 +14,8 @@ const AdminDeliveryManagement = () => {
   const [formData, setFormData] = useState({
     name: '',
     phone: '',
-    vehicleType: 'bike',
-    vehicleNumber: '',
+    email: '',
+    password: '',
     status: 'available'
   });
 
@@ -44,8 +44,7 @@ const AdminDeliveryManagement = () => {
   const filteredStaff = useMemo(() => {
     return deliveryStaff.filter((staff) =>
       staff.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      staff.phone.includes(searchQuery) ||
-      staff.vehicleNumber.toLowerCase().includes(searchQuery.toLowerCase())
+      staff.phone.includes(searchQuery)
     );
   }, [deliveryStaff, searchQuery]);
 
@@ -87,8 +86,8 @@ const AdminDeliveryManagement = () => {
     setFormData({
       name: staff.name,
       phone: staff.phone,
-      vehicleType: staff.vehicleType,
-      vehicleNumber: staff.vehicleNumber,
+      email: staff.email || '',
+      password: '',
       status: staff.status
     });
     setShowAddModal(true);
@@ -112,8 +111,8 @@ const AdminDeliveryManagement = () => {
     setFormData({
       name: '',
       phone: '',
-      vehicleType: 'bike',
-      vehicleNumber: '',
+      email: '',
+      password: '',
       status: 'available'
     });
     setEditingStaff(null);
@@ -231,7 +230,6 @@ const AdminDeliveryManagement = () => {
                 <tr>
                   <th>Name</th>
                   <th>Phone</th>
-                  <th>Vehicle</th>
                   <th>Status</th>
                   <th>Assigned Orders</th>
                   <th>Completed Today</th>
@@ -244,13 +242,6 @@ const AdminDeliveryManagement = () => {
                     <tr key={staff._id}>
                       <td><strong>{staff.name}</strong></td>
                       <td>{staff.phone}</td>
-                      <td>
-                        <div>
-                          <span className="vehicle-type">{staff.vehicleType}</span>
-                          <br />
-                          <small>{staff.vehicleNumber}</small>
-                        </div>
-                      </td>
                       <td>
                         <span className={`admin-status-badge status-${staff.status}`}>
                           {staff.status}
@@ -321,32 +312,34 @@ const AdminDeliveryManagement = () => {
                   />
                 </div>
 
-                <div className="admin-form-row">
-                  <div className="admin-form-group">
-                    <label>Vehicle Type *</label>
-                    <select
-                      name="vehicleType"
-                      value={formData.vehicleType}
-                      onChange={handleInputChange}
-                      required
-                    >
-                      <option value="bike">Bike</option>
-                      <option value="car">Car</option>
-                      <option value="van">Van</option>
-                    </select>
-                  </div>
-                  <div className="admin-form-group">
-                    <label>Vehicle Number *</label>
-                    <input
-                      type="text"
-                      name="vehicleNumber"
-                      value={formData.vehicleNumber}
-                      onChange={handleInputChange}
-                      required
-                      placeholder="DHA-1234"
-                    />
-                  </div>
-                </div>
+                {!editingStaff && (
+                  <>
+                    <div className="admin-form-group">
+                      <label>Email * (for login)</label>
+                      <input
+                        type="email"
+                        name="email"
+                        value={formData.email}
+                        onChange={handleInputChange}
+                        required
+                        placeholder="staff@railbite.com"
+                      />
+                    </div>
+
+                    <div className="admin-form-group">
+                      <label>Password * (for login)</label>
+                      <input
+                        type="password"
+                        name="password"
+                        value={formData.password}
+                        onChange={handleInputChange}
+                        required
+                        placeholder="Min 6 characters"
+                        minLength={6}
+                      />
+                    </div>
+                  </>
+                )}
 
                 <div className="admin-form-group">
                   <label>Status *</label>
@@ -378,8 +371,8 @@ const AdminDeliveryManagement = () => {
                     {saving
                       ? 'Saving...'
                       : editingStaff
-                      ? 'Update Staff'
-                      : 'Add Staff'}
+                        ? 'Update Staff'
+                        : 'Add Staff'}
                   </button>
                 </div>
               </form>

@@ -50,7 +50,7 @@ exports.seedAdmin = async (req, res) => {
 // POST /api/auth/register
 exports.register = async (req, res) => {
   try {
-    const { name, email, phone, password } = req.body;
+    const { name, email, phone, password, role } = req.body;
 
     if (!name || !email || !password) {
       return res.status(400).json({
@@ -58,6 +58,10 @@ exports.register = async (req, res) => {
         message: 'Name, email and password are required'
       });
     }
+
+    // Only allow customer or delivery registration
+    const allowedRoles = ['customer', 'delivery'];
+    const userRole = allowedRoles.includes(role) ? role : 'customer';
 
     // Check if user already exists
     const existing = await User.findOne({ email });
@@ -68,15 +72,26 @@ exports.register = async (req, res) => {
       });
     }
 
-    // Create new customer
+    // Create new user
     const user = await User.create({
       name,
       email,
       phone: phone || '',
       password,
-      role: 'customer',
+      role: userRole,
       status: 'active'
     });
+
+    // If delivery staff, also create DeliveryStaff profile
+    if (userRole === 'delivery') {
+      const DeliveryStaff = require('../models/DeliveryStaff');
+      await DeliveryStaff.create({
+        userId: user._id,
+        name,
+        phone: phone || '',
+        status: 'available'
+      });
+    }
 
     const token = generateToken(user._id);
 

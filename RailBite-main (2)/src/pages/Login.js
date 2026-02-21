@@ -6,6 +6,7 @@ import Toast from '../components/Toast';
 const Login = () => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
+  const [role, setRole] = useState('customer');
   const [toast, setToast] = useState(null);
   const [loading, setLoading] = useState(false);
   const { login } = useAuth();
@@ -25,7 +26,7 @@ const Login = () => {
 
       if (result.success) {
         setToast({ message: 'Login successful!', type: 'success' });
-        
+
         setTimeout(() => {
           const intendedUrl = localStorage.getItem('railbiteIntendedUrl');
           if (intendedUrl) {
@@ -50,9 +51,9 @@ const Login = () => {
       <div className="auth-container">
         <div className="auth-header">
           <div className="hero-content">
-            <img 
-              src="/images/logo.png" 
-              alt="RailBite Logo" 
+            <img
+              src="/images/logo.png"
+              alt="RailBite Logo"
               style={{ width: '135px', height: '45px', display: 'block', margin: '0 auto' }}
             />
             <div>
@@ -65,6 +66,27 @@ const Login = () => {
         </div>
 
         <form onSubmit={handleSubmit}>
+          {/* Role Selector */}
+          <div className="form-group">
+            <label>Login as</label>
+            <select
+              value={role}
+              onChange={(e) => {
+                const selected = e.target.value;
+                setRole(selected);
+                if (selected === 'admin') {
+                  navigate('/admin/login');
+                } else if (selected === 'delivery') {
+                  navigate('/delivery/login');
+                }
+              }}
+            >
+              <option value="customer">Customer</option>
+              <option value="admin">Admin</option>
+              <option value="delivery">Delivery Staff</option>
+            </select>
+          </div>
+
           <div className="form-group">
             <label>Email Address</label>
             <input
@@ -88,16 +110,16 @@ const Login = () => {
           </div>
 
           <div style={{ textAlign: 'right', marginBottom: '1rem' }}>
-            <Link 
-              to="/forgot-password" 
+            <Link
+              to="/forgot-password"
               style={{ color: 'var(--primary-orange)', fontSize: '0.9rem' }}
             >
               Forgot Password?
             </Link>
           </div>
 
-          <button 
-            type="submit" 
+          <button
+            type="submit"
             className="btn btn-primary btn-block"
             disabled={loading}
           >
@@ -111,22 +133,6 @@ const Login = () => {
             </Link>
           </p>
 
-          
-        {/* Simple Admin Link */}
-        <p style={{ textAlign: 'center', marginTop: '2rem', color: 'var(--text-gray)', fontSize: '0.95rem' }}>
-          Are you an{' '}
-          <Link 
-            to="/admin/login" 
-            style={{ 
-              color: 'var(--primary-orange)', 
-              fontWeight: '600',
-              textDecoration: 'none'
-            }}
-          >
-            Administrator
-          </Link>
-          ?
-        </p>
         </form>
       </div>
 
@@ -144,5 +150,5 @@ const Login = () => {
 export default Login;
 
 
-      
+
 

@@ -61,8 +61,14 @@ function MenuPage({ category, title, icon }) {
             {menuItems.map((item) => (
               <div key={item._id} className="menu-item-card">
                 <div className="item-image">
-                  <img 
-                    src={item.image || '/images/placeholder.jpg'} 
+                  <img
+                    src={
+                      item.image
+                        ? item.image.startsWith('/uploads')
+                          ? `http://localhost:5001${item.image}`
+                          : item.image
+                        : '/images/placeholder.jpg'
+                    }
                     alt={item.name}
                     onError={(e) => e.target.src = '/images/placeholder.jpg'}
                   />
@@ -89,7 +95,7 @@ function MenuPage({ category, title, icon }) {
           </div>
         )}
 
-        <button 
+        <button
           className="btn btn-secondary view-cart-btn"
           onClick={() => navigate('/cart')}
         >

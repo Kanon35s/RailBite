@@ -38,8 +38,17 @@ const orderSchema = new mongoose.Schema(
     paymentInfo: {
       provider: { type: String, default: '' },
       transactionId: { type: String, default: '' },
+      accountNumber: { type: String, default: '' },
       cardLastFour: { type: String, default: '' },
-      cardholderName: { type: String, default: '' }
+      cardholderName: { type: String, default: '' },
+      cardType: { type: String, default: '' }
+    },
+    advanceAmount: { type: Number, default: 0 },
+    dueAmount: { type: Number, default: 0 },
+    paymentStatus: {
+      type: String,
+      enum: ['unpaid', 'partial', 'paid'],
+      default: 'unpaid'
     },
     subtotal: { type: Number, required: true },
     vat: { type: Number, default: 0 },
@@ -54,6 +63,11 @@ const orderSchema = new mongoose.Schema(
       type: String,
       enum: ['preparing', 'sent', 'delivered', ''],
       default: ''
+    },
+    assignedTo: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: 'User',
+      default: null
     }
   },
   { timestamps: true }

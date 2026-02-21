@@ -4,6 +4,21 @@
 
 /* Layout reuses .admin-layout, .admin-content from admin.css */
 
+/* Pulse animation for unassigned orders badge */
+@keyframes pulse {
+  0% {
+    box-shadow: 0 0 0 0 rgba(244, 67, 54, 0.5);
+  }
+
+  70% {
+    box-shadow: 0 0 0 8px rgba(244, 67, 54, 0);
+  }
+
+  100% {
+    box-shadow: 0 0 0 0 rgba(244, 67, 54, 0);
+  }
+}
+
 /* Header */
 
 .admin-header {

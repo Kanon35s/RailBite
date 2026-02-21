@@ -13,12 +13,19 @@ const AdminNotifications = () => {
     type: 'promotion',
     title: '',
     message: '',
-    targetUser: 'all'
+    targetRole: 'all'
   });
 
   useEffect(() => {
     fetchNotifications();
   }, []);
+
+  useEffect(() => {
+    if (toast) {
+      const timer = setTimeout(() => setToast(null), 3000);
+      return () => clearTimeout(timer);
+    }
+  }, [toast]);
 
   const fetchNotifications = async () => {
     try {
@@ -61,7 +68,7 @@ const AdminNotifications = () => {
           type: 'promotion',
           title: '',
           message: '',
-          targetUser: 'all'
+          targetRole: 'all'
         });
       }
     } catch (err) {
@@ -90,58 +97,86 @@ const AdminNotifications = () => {
   const getTargetLabel = (target) => {
     const labels = {
       all: '👥 All Users',
-      users: '🧑‍💻 Customers',
+      customer: '🧑‍💻 Customers',
       delivery: '🚚 Delivery Staff',
       admin: '👑 Admins'
     };
     return labels[target] || target;
   };
 
+  const getTypeIcon = (type) => {
+    const icons = { promotion: '🎉', alert: '⚠️', order: '📦', delivery: '🚚', info: 'ℹ️', system: '🔧' };
+    return icons[type] || '🔔';
+  };
+
+  // Stats
+  const totalSent = notifications.length;
+  const broadcastCount = notifications.filter(n => !n.targetUser).length;
+  const orderNotifCount = notifications.filter(n => n.type === 'order' || n.type === 'delivery').length;
 
   return (
-    <div className="admin-dashboard">
+    <div className="admin-layout">
       <AdminSidebar />
       <div className="admin-content">
         <div className="admin-header">
-          <h1>🔔 Send Notifications</h1>
-          <p>Send notifications to users</p>
+          <div>
+            <h1>Notifications</h1>
+            <p>Send and manage notifications for all users</p>
+          </div>
+        </div>
+
+        {/* Stats */}
+        <div className="admin-stats-grid admin-stats-grid-small">
+          <div className="admin-stat-card admin-stat-card-staff-total">
+            <div className="admin-stat-icon">📤</div>
+            <div className="admin-stat-content">
+              <span className="admin-stat-label">Total Sent</span>
+              <span className="admin-stat-value">{totalSent}</span>
+            </div>
+          </div>
+          <div className="admin-stat-card admin-stat-card-active">
+            <div className="admin-stat-icon">📢</div>
+            <div className="admin-stat-content">
+              <span className="admin-stat-label">Broadcasts</span>
+              <span className="admin-stat-value">{broadcastCount}</span>
+            </div>
+          </div>
+          <div className="admin-stat-card admin-stat-card-users">
+            <div className="admin-stat-icon">📦</div>
+            <div className="admin-stat-content">
+              <span className="admin-stat-label">Order Notifications</span>
+              <span className="admin-stat-value">{orderNotifCount}</span>
+            </div>
+          </div>
         </div>
 
         {/* Send Form */}
-        <div className="admin-form-container">
+        <div className="admin-card" style={{ marginBottom: '2rem' }}>
+          <h3 style={{ color: 'var(--text-white)', marginBottom: '1rem' }}>📤 Send New Notification</h3>
           <form onSubmit={handleSubmit} className="admin-form">
-            <div className="form-group">
-              <label>Notification Type</label>
-              <select
-                name="type"
-                value={formData.type}
-                onChange={handleChange}
-                required
-              >
-                <option value="promotion">🎉 Promotion</option>
-                <option value="alert">⚠️ Alert</option>
-                <option value="order">📦 Order Update</option>
-                <option value="info">ℹ️ Information</option>
-              </select>
+            <div className="admin-form-row">
+              <div className="admin-form-group">
+                <label>Type</label>
+                <select name="type" value={formData.type} onChange={handleChange} required>
+                  <option value="promotion">🎉 Promotion</option>
+                  <option value="alert">⚠️ Alert</option>
+                  <option value="order">📦 Order Update</option>
+                  <option value="info">ℹ️ Information</option>
+                </select>
+              </div>
+              <div className="admin-form-group">
+                <label>Target Audience</label>
+                <select name="targetRole" value={formData.targetRole} onChange={handleChange} required>
+                  <option value="all">👥 All Users</option>
+                  <option value="customer">🧑‍💻 Customers Only</option>
+                  <option value="delivery">🚚 Delivery Staff Only</option>
+                  <option value="admin">👑 Admins Only</option>
+                </select>
+              </div>
             </div>
 
-            <div className="form-group">
-              <label>Target Users</label>
-              <select
-                name="targetUser"
-                value={formData.targetUser}
-                onChange={handleChange}
-                required
-              >
-                <option value="all">👥 All Users</option>
-                <option value="users">🧑‍💻 Customers Only</option>
-                <option value="delivery">🚚 Delivery Staff Only</option>
-                <option value="admin">👑 Admins Only</option>
-              </select>
-            </div>
-
-            <div className="form-group">
-              <label>Notification Title</label>
+            <div className="admin-form-group">
+              <label>Title</label>
               <input
                 type="text"
                 name="title"
@@ -152,52 +187,42 @@ const AdminNotifications = () => {
               />
             </div>
 
-            <div className="form-group">
+            <div className="admin-form-group">
               <label>Message</label>
               <textarea
                 name="message"
                 value={formData.message}
                 onChange={handleChange}
                 placeholder="Enter your notification message..."
-                rows="5"
+                rows="4"
                 required
               />
             </div>
 
             {toast && (
-              <div
-                style={{
-                  padding: '10px',
-                  marginBottom: '10px',
-                  borderRadius: '6px',
-                  backgroundColor: toast.type === 'success' ? '#d4edda' : '#f8d7da',
-                  color: toast.type === 'success' ? '#155724' : '#721c24'
-                }}
-              >
+              <div className={`admin-toast ${toast.type === 'success' ? 'admin-toast-success' : 'admin-toast-error'}`}>
                 {toast.message}
               </div>
             )}
 
-            <button
-              type="submit"
-              className="btn btn-primary btn-block"
-              disabled={sending}
-            >
-              {sending ? 'Sending...' : '📤 Send Notification'}
-            </button>
+            <div className="admin-modal-footer">
+              <button type="submit" className="admin-btn-primary" disabled={sending}>
+                {sending ? 'Sending...' : '📤 Send Notification'}
+              </button>
+            </div>
           </form>
         </div>
 
-        {/* Recent Notifications */}
-        <div style={{ marginTop: '3rem' }}>
-          <h2 style={{ marginBottom: '1.5rem' }}>
-            Recent Notifications Sent ({notifications.length})
-          </h2>
+        {/* Notification History Table */}
+        <div className="admin-card">
+          <h3 style={{ color: 'var(--text-white)', marginBottom: '1rem' }}>
+            Recent Notifications ({notifications.length})
+          </h3>
 
           {loading ? (
-            <p>Loading notifications...</p>
+            <p style={{ color: 'var(--text-gray)' }}>Loading notifications...</p>
           ) : error ? (
-            <p style={{ color: 'red' }}>Error: {error}</p>
+            <p className="admin-error-text">Error: {error}</p>
           ) : (
             <div className="admin-table-container">
               <table className="admin-table">
@@ -216,13 +241,17 @@ const AdminNotifications = () => {
                     notifications.map((notif) => (
                       <tr key={notif._id}>
                         <td>
-                          <span className="badge status-preparing">
-                            {notif.type}
+                          <span className="admin-category-badge">
+                            {getTypeIcon(notif.type)} {notif.type}
                           </span>
                         </td>
                         <td><strong>{notif.title}</strong></td>
-                        <td>{notif.message.substring(0, 50)}...</td>
-                        <td>{getTargetLabel(notif.targetUser)}</td>
+                        <td className="admin-table-description">
+                          {notif.message.length > 60
+                            ? notif.message.substring(0, 60) + '...'
+                            : notif.message}
+                        </td>
+                        <td>{getTargetLabel(notif.targetRole)}</td>
                         <td>
                           {new Date(notif.createdAt).toLocaleDateString('en-BD', {
                             month: 'short',
@@ -243,7 +272,7 @@ const AdminNotifications = () => {
                     ))
                   ) : (
                     <tr>
-                      <td colSpan="6" style={{ textAlign: 'center', padding: '20px' }}>
+                      <td colSpan="6" className="admin-empty-cell">
                         No notifications sent yet
                       </td>
                     </tr>
@@ -259,4 +288,3 @@ const AdminNotifications = () => {
 };
 
 export default AdminNotifications;
-

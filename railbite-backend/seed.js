@@ -223,10 +223,43 @@ const seed = async () => {
     await DeliveryStaff.deleteMany({});
     console.log('Existing delivery staff cleared');
 
+    // Create delivery user accounts (for login)
+    await User.deleteMany({ role: 'delivery' });
+    console.log('Existing delivery users cleared');
+
+    const deliveryUser1 = await User.create({
+      name: 'Karim Ahmed',
+      email: 'karim@railbite.com',
+      password: 'delivery123',
+      phone: '01712345678',
+      role: 'delivery',
+      status: 'active'
+    });
+
+    const deliveryUser2 = await User.create({
+      name: 'Rahim Mia',
+      email: 'rahim@railbite.com',
+      password: 'delivery123',
+      phone: '01812345678',
+      role: 'delivery',
+      status: 'active'
+    });
+
+    const deliveryUser3 = await User.create({
+      name: 'Salman Khan',
+      email: 'salman@railbite.com',
+      password: 'delivery123',
+      phone: '01912345678',
+      role: 'delivery',
+      status: 'active'
+    });
+
+    console.log('Delivery user accounts created');
+
     const deliveryStaffData = [
-      { name: 'Karim Ahmed', phone: '01712345678', vehicleType: 'bike', vehicleNumber: 'DHA-1234', status: 'available', assignedOrders: 0, completedToday: 5 },
-      { name: 'Rahim Mia', phone: '01812345678', vehicleType: 'bike', vehicleNumber: 'DHA-5678', status: 'busy', assignedOrders: 1, completedToday: 3 },
-      { name: 'Salman Khan', phone: '01912345678', vehicleType: 'car', vehicleNumber: 'DHA-9012', status: 'available', assignedOrders: 0, completedToday: 7 }
+      { userId: deliveryUser1._id, name: 'Karim Ahmed', phone: '01712345678', status: 'available', assignedOrders: 0, completedToday: 5 },
+      { userId: deliveryUser2._id, name: 'Rahim Mia', phone: '01812345678', status: 'busy', assignedOrders: 1, completedToday: 3 },
+      { userId: deliveryUser3._id, name: 'Salman Khan', phone: '01912345678', status: 'available', assignedOrders: 0, completedToday: 7 }
     ];
 
     await DeliveryStaff.insertMany(deliveryStaffData);

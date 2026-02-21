@@ -1,9 +1,12 @@
-import React, { useState, useMemo } from 'react';
+import React, { useState, useMemo, useEffect } from 'react';
+import axios from 'axios';
 import { useNavigate } from 'react-router-dom';
 import { useCart } from '../context/CartContext';
 import BackButton from '../components/BackButton';
 import SearchFilter from '../components/SearchFilter';
 import Toast from '../components/Toast';
+
+const API_URL = process.env.REACT_APP_API_URL || 'http://localhost:5001/api';
 
 const DinnerMenu = () => {
   const [toast, setToast] = useState(null);
@@ -13,39 +16,41 @@ const DinnerMenu = () => {
   const [searchQuery, setSearchQuery] = useState('');
   const [sortBy, setSortBy] = useState('default');
   const [priceRange, setPriceRange] = useState('all');
+  const [backendItems, setBackendItems] = useState(null);
+  const [loading, setLoading] = useState(false);
 
   const dinnerItems = useMemo(() => [
-    { 
-      name: 'Chicken Rezala', 
-      price: 250, 
+    {
+      name: 'Chicken Rezala',
+      price: 250,
       image: '/images/chicken-rezala.png',
       description: 'Creamy yogurt-based chicken curry',
       hasSubmenu: false
     },
-    { 
-      name: 'Morog Polao', 
-      price: 220, 
+    {
+      name: 'Morog Polao',
+      price: 220,
       image: '/images/morog-polao.png',
       description: 'Chicken pulao with ghee',
       hasSubmenu: false
     },
-    { 
-      name: 'Beef Tehari', 
-      price: 200, 
+    {
+      name: 'Beef Tehari',
+      price: 200,
       image: '/images/beef-tehari.jpg',
       description: 'Spiced beef with yellow rice',
       hasSubmenu: false
     },
-    { 
-      name: 'Fish Curry with Rice', 
-      price: 180, 
+    {
+      name: 'Fish Curry with Rice',
+      price: 180,
       image: '/images/fishcurry.jpg',
       description: 'Traditional Bengali fish curry',
       hasSubmenu: false
     },
-    { 
-      name: 'Beverage', 
-      price: 50, 
+    {
+      name: 'Beverage',
+      price: 50,
       image: '/images/drinks.jpg',
       description: 'Soft drinks & more',
       hasSubmenu: true,
@@ -53,8 +58,43 @@ const DinnerMenu = () => {
     }
   ], []);
 
+  useEffect(() => {
+    const fetchDinner = async () => {
+      try {
+        setLoading(true);
+        const res = await axios.get(`${API_URL}/menu`, {
+          params: { category: 'dinner' },
+        });
+        if (res.data.success && res.data.data.length > 0) {
+          const mappedCore = res.data.data.map((item) => ({
+            name: item.name,
+            price: item.price,
+            image: item.image?.startsWith('/uploads') ? API_URL.replace('/api', '') + item.image : item.image,
+            description: item.description,
+            hasSubmenu: false,
+          }));
+          const beverageSubmenu = dinnerItems.find((i) => i.hasSubmenu);
+          const merged = beverageSubmenu
+            ? [...mappedCore, beverageSubmenu]
+            : mappedCore;
+          setBackendItems(merged);
+        } else {
+          setBackendItems(null);
+        }
+      } catch (err) {
+        console.error('Failed to load dinner menu:', err);
+        setBackendItems(null);
+      } finally {
+        setLoading(false);
+      }
+    };
+    fetchDinner();
+  }, [dinnerItems]);
+
+  const items = backendItems || dinnerItems;
+
   const filteredAndSortedItems = useMemo(() => {
-    let filtered = [...dinnerItems];
+    let filtered = [...items];
 
     // Search filter
     if (searchQuery) {
@@ -89,13 +129,13 @@ const DinnerMenu = () => {
     }
 
     return filtered;
-  }, [dinnerItems, searchQuery, sortBy, priceRange]);
+  }, [items, searchQuery, sortBy, priceRange]);
 
   const handleItemClick = (item) => {
     if (item.hasSubmenu) {
       navigate(item.path);
     } else {
-      addToCart(item.name, item.price);
+      addToCart(item.name, item.price, item.image);
       setToast({ message: `${item.name} added to cart!`, type: 'success' });
     }
   };
@@ -120,8 +160,8 @@ const DinnerMenu = () => {
         />
 
         {/* Results Info */}
-        <div style={{ 
-          marginBottom: '1.5rem', 
+        <div style={{
+          marginBottom: '1.5rem',
           color: 'var(--text-gray)',
           fontSize: '0.95rem'
         }}>
@@ -133,10 +173,10 @@ const DinnerMenu = () => {
             </p>
           )}
           {filteredAndSortedItems.length === 0 && searchQuery && (
-            <p style={{ 
-              color: 'var(--text-white)', 
-              fontSize: '1.1rem', 
-              textAlign: 'center', 
+            <p style={{
+              color: 'var(--text-white)',
+              fontSize: '1.1rem',
+              textAlign: 'center',
               padding: '2rem',
               background: 'var(--dark-card)',
               borderRadius: '10px'
@@ -160,7 +200,7 @@ const DinnerMenu = () => {
                   {!item.hasSubmenu && (
                     <span className="menu-item-price">৳{item.price}</span>
                   )}
-                  <button 
+                  <button
                     className={`btn ${item.hasSubmenu ? 'btn-explore' : 'btn-primary'} btn-sm`}
                     onClick={() => handleItemClick(item)}
                   >

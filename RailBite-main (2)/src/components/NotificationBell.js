@@ -1,68 +1,67 @@
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect, useRef, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { notificationAPI } from '../services/api';
 
 function NotificationBell() {
   const [notifications, setNotifications] = useState([]);
+  const [unreadCount, setUnreadCount] = useState(0);
   const [isOpen, setIsOpen] = useState(false);
-  const [unreadIds, setUnreadIds] = useState([]);
   const wrapperRef = useRef(null);
   const navigate = useNavigate();
 
-  // Load read IDs from localStorage so read state persists
-  const getReadIds = () => {
-    const saved = localStorage.getItem('railbiteReadNotifications');
-    return saved ? JSON.parse(saved) : [];
-  };
+  const getToken = () =>
+    localStorage.getItem('railbiteToken') ||
+    localStorage.getItem('railbite_token') ||
+    localStorage.getItem('railbite_delivery_token') ||
+    null;
 
-  const saveReadIds = (ids) => {
-    localStorage.setItem('railbiteReadNotifications', JSON.stringify(ids));
-  };
+  const fetchNotifications = useCallback(async () => {
+    const token = getToken();
+    if (!token) return;
 
-  const fetchNotifications = async () => {
     try {
-      const token = localStorage.getItem('railbiteToken');
-      if (!token) return;
-
-      const res = await notificationAPI.getCustomer(token);
+      const res = await notificationAPI.getMyNotifications(token);
       if (res.data.success) {
-        const fetched = res.data.data || [];
-        const readIds = getReadIds();
-
-        // Mark as read/unread based on localStorage
-        const mapped = fetched.map(n => ({
-          ...n,
-          read: readIds.includes(n._id),
-          icon: getIcon(n.type),
-          time: n.createdAt
-        }));
-
-        setNotifications(mapped);
-        setUnreadIds(mapped.filter(n => !n.read).map(n => n._id));
+        const data = res.data.data || [];
+        setNotifications(data);
+        setUnreadCount(data.filter(n => !n.read).length);
       }
     } catch (err) {
       console.error('Failed to fetch notifications:', err.message);
     }
-  };
+  }, []);
+
+  const fetchUnreadCount = useCallback(async () => {
+    const token = getToken();
+    if (!token) return;
+
+    try {
+      const res = await notificationAPI.getUnreadCount(token);
+      if (res.data.success) {
+        setUnreadCount(res.data.data.count);
+      }
+    } catch (err) {
+      console.error('Failed to fetch unread count:', err.message);
+    }
+  }, []);
 
   const getIcon = (type) => {
     const icons = {
       promotion: '🎉',
       alert: '⚠️',
       order: '📦',
-      info: 'ℹ️'
+      delivery: '🚚',
+      info: 'ℹ️',
+      system: '🔧'
     };
     return icons[type] || '🔔';
   };
 
   useEffect(() => {
-    // Initial fetch
     fetchNotifications();
-
-    // Poll every 30 seconds for new notifications
-    const interval = setInterval(fetchNotifications, 30000);
+    const interval = setInterval(fetchUnreadCount, 30000);
     return () => clearInterval(interval);
-  }, []);
+  }, [fetchNotifications, fetchUnreadCount]);
 
   useEffect(() => {
     const handleClickOutside = (event) => {
@@ -74,35 +73,38 @@ function NotificationBell() {
     return () => document.removeEventListener('mousedown', handleClickOutside);
   }, []);
 
-  const handleNotificationClick = (notification) => {
-    // Mark as read in localStorage
-    const readIds = getReadIds();
-    if (!readIds.includes(notification._id)) {
-      const updated = [...readIds, notification._id];
-      saveReadIds(updated);
+  const handleNotificationClick = async (notification) => {
+    const token = getToken();
+    if (token && !notification.read) {
+      try {
+        await notificationAPI.markAsRead(notification._id, token);
+        setNotifications(prev =>
+          prev.map(n => n._id === notification._id ? { ...n, read: true } : n)
+        );
+        setUnreadCount(prev => Math.max(0, prev - 1));
+      } catch (err) {
+        console.error('Failed to mark as read:', err.message);
+      }
     }
 
-    // Update state
-    setNotifications(prev =>
-      prev.map(n => n._id === notification._id ? { ...n, read: true } : n)
-    );
-    setUnreadIds(prev => prev.filter(id => id !== notification._id));
     setIsOpen(false);
+
+    if (notification.relatedOrder) {
+      navigate(`/order-details/${notification.relatedOrder}`);
+    }
   };
 
-  const markAllAsRead = () => {
-    const allIds = notifications.map(n => n._id);
-    saveReadIds(allIds);
-    setNotifications(prev => prev.map(n => ({ ...n, read: true })));
-    setUnreadIds([]);
-  };
+  const markAllAsRead = async () => {
+    const token = getToken();
+    if (!token) return;
 
-  const clearAll = () => {
-    // Clear read tracking from localStorage
-    localStorage.removeItem('railbiteReadNotifications');
-    setNotifications([]);
-    setUnreadIds([]);
-    setIsOpen(false);
+    try {
+      await notificationAPI.markAllAsRead(token);
+      setNotifications(prev => prev.map(n => ({ ...n, read: true })));
+      setUnreadCount(0);
+    } catch (err) {
+      console.error('Failed to mark all as read:', err.message);
+    }
   };
 
   const getRelativeTime = (dateString) => {
@@ -127,8 +129,6 @@ function NotificationBell() {
     return weeks + 'w ago';
   };
 
-  const unreadCount = unreadIds.length;
-
   return (
     <>
       {isOpen && (
@@ -141,7 +141,10 @@ function NotificationBell() {
       <div className="notification-wrapper" ref={wrapperRef}>
         <button
           className="notification-btn"
-          onClick={() => setIsOpen(!isOpen)}
+          onClick={() => {
+            if (!isOpen) fetchNotifications();
+            setIsOpen(!isOpen);
+          }}
         >
           🔔
           {unreadCount > 0 && (
@@ -161,26 +164,18 @@ function NotificationBell() {
                   Mark all read
                 </button>
               )}
-              {notifications.length > 0 && (
-                <button
-                  className="notification-action-btn danger"
-                  onClick={clearAll}
-                >
-                  Clear
-                </button>
-              )}
             </div>
           </div>
 
           <div className="notification-list">
             {notifications.length > 0 ? (
-              notifications.slice(0, 4).map((notification) => (
+              notifications.slice(0, 5).map((notification) => (
                 <div
                   key={notification._id}
                   className={'notification-item ' + (!notification.read ? 'unread' : '')}
                   onClick={() => handleNotificationClick(notification)}
                 >
-                  <div className="notification-icon">{notification.icon}</div>
+                  <div className="notification-icon">{getIcon(notification.type)}</div>
                   <div className="notification-content">
                     <div className="notification-title">{notification.title}</div>
                     <div className="notification-message">
@@ -189,7 +184,7 @@ function NotificationBell() {
                         : notification.message}
                     </div>
                     <div className="notification-time">
-                      {getRelativeTime(notification.time)}
+                      {getRelativeTime(notification.createdAt)}
                     </div>
                   </div>
                 </div>

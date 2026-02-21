@@ -57,14 +57,16 @@ export const AuthProvider = ({ children }) => {
     }
   };
 
-  const register = async (fullName, email, phone, password) => {
+  const register = async (fullName, email, phone, password, role = 'customer') => {
     try {
-      const response = await authAPI.register({
+      const payload = {
         name: fullName,
         email,
         phone,
-        password
-      });
+        password,
+        role
+      };
+      const response = await authAPI.register(payload);
 
       if (response.data.success) {
         const { token, user } = response.data;

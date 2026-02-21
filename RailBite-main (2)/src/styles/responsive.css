@@ -4,21 +4,7 @@
 /* Tablet & Small Desktop (max-width: 968px) */
 @media (max-width: 968px) {
   .nav-menu {
-    position: fixed;
-    left: -100%;
-    top: 80px;
-    flex-direction: column;
-    background: var(--dark-card);
-    width: 100%;
-    text-align: center;
-    transition: 0.3s;
-    box-shadow: var(--shadow-lg);
-    padding: 2rem 0;
-    border-top: 1px solid var(--border-dark);
-  }
-
-  .nav-menu.active {
-    left: 0;
+    display: none;
   }
 
   .hamburger {

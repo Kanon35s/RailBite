@@ -8,6 +8,7 @@ const Register = () => {
   const [email, setEmail] = useState('');
   const [phone, setPhone] = useState('');
   const [password, setPassword] = useState('');
+  const [role, setRole] = useState('customer');
   const [toast, setToast] = useState(null);
   const [loading, setLoading] = useState(false);
   const { register } = useAuth();
@@ -38,17 +39,21 @@ const Register = () => {
 
     try {
       setLoading(true);
-      const result = await register(fullName, email, phone, password);
+      const result = await register(fullName, email, phone, password, role);
 
       if (result.success) {
         setToast({ message: 'Registration successful!', type: 'success' });
         setTimeout(() => {
-          const intendedUrl = localStorage.getItem('railbiteIntendedUrl');
-          if (intendedUrl) {
-            localStorage.removeItem('railbiteIntendedUrl');
-            navigate(intendedUrl);
+          if (role === 'delivery') {
+            navigate('/delivery/login');
           } else {
-            navigate('/order-selection');
+            const intendedUrl = localStorage.getItem('railbiteIntendedUrl');
+            if (intendedUrl) {
+              localStorage.removeItem('railbiteIntendedUrl');
+              navigate(intendedUrl);
+            } else {
+              navigate('/order-selection');
+            }
           }
         }, 1000);
       } else {
@@ -66,9 +71,9 @@ const Register = () => {
       <div className="auth-container">
         <div className="auth-header">
           <div className="hero-content">
-            <img 
-              src="/images/logo.png" 
-              alt="RailBite Logo" 
+            <img
+              src="/images/logo.png"
+              alt="RailBite Logo"
               style={{ width: '135px', height: '45px', display: 'block', margin: '0 auto' }}
             />
             <div>
@@ -125,8 +130,19 @@ const Register = () => {
             />
           </div>
 
-          <button 
-            type="submit" 
+          <div className="form-group">
+            <label>Register as</label>
+            <select
+              value={role}
+              onChange={(e) => setRole(e.target.value)}
+            >
+              <option value="customer">Customer</option>
+              <option value="delivery">Delivery Staff</option>
+            </select>
+          </div>
+
+          <button
+            type="submit"
             className="btn btn-primary btn-block"
             disabled={loading}
           >

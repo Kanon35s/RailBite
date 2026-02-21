@@ -24,10 +24,10 @@ const OrderDetails = () => {
 
   const handleReorder = () => {
     if (!order) return;
-    
+
     order.items.forEach(item => {
       for (let i = 0; i < item.quantity; i++) {
-        addToCart(item.name, item.price);
+        addToCart(item.name, item.price, item.image || null);
       }
     });
     setToast({ message: 'Items added to cart!', type: 'success' });
@@ -45,15 +45,15 @@ const OrderDetails = () => {
   return (
     <div className="order-details-page">
       <BackButton />
-      
+
       <div className="container">
         <div className="receipt-container">
           {/* Receipt Header with Logo */}
           <div className="receipt-header">
             <div className="receipt-logo-section">
-              <img 
-                src="/images/logo.png" 
-                alt="RailBite Logo" 
+              <img
+                src="/images/logo.png"
+                alt="RailBite Logo"
                 className="receipt-logo"
               />
             </div>
@@ -133,7 +133,7 @@ const OrderDetails = () => {
           <div className="receipt-notes">
             <h3>Notes</h3>
             <p>
-              Thank you for your order! Your food will be delivered to your seat within 30-45 minutes. 
+              Thank you for your order! Your food will be delivered to your seat within 30-45 minutes.
               Please retain this receipt for reference.
             </p>
             <p>
@@ -143,13 +143,13 @@ const OrderDetails = () => {
 
           {/* Action Buttons */}
           <div className="receipt-actions">
-            <button 
+            <button
               className="btn btn-primary btn-block"
               onClick={handleReorder}
             >
               Reorder These Items
             </button>
-            <button 
+            <button
               className="btn btn-secondary btn-block"
               onClick={handlePrint}
             >
