@@ -2,6 +2,18 @@ const User = require('../models/User');
 const generateToken = require('../utils/generateToken');
 const crypto = require('crypto');
 
+// Strong password validator
+const validatePassword = (password) => {
+  const errors = [];
+  if (password.length < 8)        errors.push('at least 8 characters');
+  if (!/[A-Z]/.test(password))    errors.push('one uppercase letter');
+  if (!/[a-z]/.test(password))    errors.push('one lowercase letter');
+  if (!/[0-9]/.test(password))    errors.push('one number');
+  if (!/[!@#$%^&*(),.?":{}|<>]/.test(password)) errors.push('one special character (!@#$%^&* etc.)');
+  return errors;
+};
+
+
 exports.login = async (req, res) => {
   const { email, password } = req.body;
 
@@ -59,6 +71,15 @@ exports.register = async (req, res) => {
       });
     }
 
+    // ✅ NEW: Strong password check
+    const passwordErrors = validatePassword(password);
+    if (passwordErrors.length > 0) {
+      return res.status(400).json({
+        success: false,
+        message: `Password must contain: ${passwordErrors.join(', ')}.`
+      });
+    }
+
     // Only allow customer or delivery registration
     const allowedRoles = ['customer', 'delivery'];
     const userRole = allowedRoles.includes(role) ? role : 'customer';
@@ -94,7 +115,6 @@ exports.register = async (req, res) => {
     }
 
     const token = generateToken(user._id);
-
     res.status(201).json({
       success: true,
       token,
@@ -111,25 +131,6 @@ exports.register = async (req, res) => {
   }
 };
 
-// GET /api/auth/me
-exports.getMe = async (req, res) => {
-  try {
-    const user = await User.findById(req.user._id).select('-password');
-    res.json({
-      success: true,
-      user: {
-        id: user._id,
-        name: user.name,
-        email: user.email,
-        phone: user.phone,
-        role: user.role,
-        status: user.status
-      }
-    });
-  } catch (error) {
-    res.status(500).json({ success: false, message: error.message });
-  }
-};
 
 // POST /api/auth/forgot-password
 exports.forgotPassword = async (req, res) => {
@@ -229,3 +230,5 @@ exports.resetPassword = async (req, res) => {
     res.status(500).json({ success: false, message: error.message });
   }
 };
+
+

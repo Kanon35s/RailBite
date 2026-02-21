@@ -3,39 +3,57 @@ import { useNavigate, useLocation } from 'react-router-dom';
 import { authAPI } from '../services/api';
 import Toast from '../components/Toast';
 
+// ✅ Same helpers as Register.js
+const getPasswordChecks = (password) => ({
+  length:    password.length >= 8,
+  uppercase: /[A-Z]/.test(password),
+  lowercase: /[a-z]/.test(password),
+  number:    /[0-9]/.test(password),
+  special:   /[!@#$%^&*(),.?":{}|<>]/.test(password),
+});
+
+const getStrengthLabel = (checks) => {
+  const passed = Object.values(checks).filter(Boolean).length;
+  if (passed <= 2) return { label: 'Weak',   color: '#e74c3c' };
+  if (passed <= 4) return { label: 'Fair',   color: '#f39c12' };
+  return             { label: 'Strong', color: '#27ae60' };
+};
+
+const checkItems = [
+  { key: 'length',    label: 'At least 8 characters' },
+  { key: 'uppercase', label: 'One uppercase letter (A–Z)' },
+  { key: 'lowercase', label: 'One lowercase letter (a–z)' },
+  { key: 'number',    label: 'One number (0–9)' },
+  { key: 'special',   label: 'One special character (!@#$%^&* …)' },
+];
+
 const ResetPassword = () => {
   const navigate = useNavigate();
   const location = useLocation();
 
   // Pre-fill token if coming from ForgotPassword page
-  const [token, setToken] = useState(location.state?.token || '');
-  const [newPassword, setNewPassword] = useState('');
+  const [token, setToken]                   = useState(location.state?.token || '');
+  const [newPassword, setNewPassword]       = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
-  const [loading, setLoading] = useState(false);
-  const [toast, setToast] = useState(null);
+  const [loading, setLoading]               = useState(false);
+  const [toast, setToast]                   = useState(null);
+  const [showChecks, setShowChecks]         = useState(false);
+
+  const checks         = getPasswordChecks(newPassword);
+  const strength       = getStrengthLabel(checks);
+  const allChecksPassed = Object.values(checks).every(Boolean);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
 
+    if (!allChecksPassed) {
+      setToast({ message: 'Password does not meet strength requirements', type: 'error' });
+      setShowChecks(true);
+      return;
+    }
+
     if (newPassword !== confirmPassword) {
       setToast({ message: 'Passwords do not match', type: 'error' });
-      return;
-    }
-
-    if (newPassword.length < 8) {
-      setToast({ message: 'Password must be at least 8 characters', type: 'error' });
-      return;
-    }
-
-    const hasUpper = /[A-Z]/.test(newPassword);
-    const hasLower = /[a-z]/.test(newPassword);
-    const hasNumber = /[0-9]/.test(newPassword);
-
-    if (!hasUpper || !hasLower || !hasNumber) {
-      setToast({
-        message: 'Password must contain uppercase, lowercase, and a number',
-        type: 'error'
-      });
       return;
     }
 
@@ -47,7 +65,6 @@ const ResetPassword = () => {
     setLoading(true);
     try {
       const res = await authAPI.resetPassword(token.trim(), newPassword);
-
       if (res.data.success) {
         setToast({ message: 'Password reset successful! Redirecting to login...', type: 'success' });
         setTimeout(() => navigate('/login'), 2000);
@@ -62,13 +79,6 @@ const ResetPassword = () => {
     } finally {
       setLoading(false);
     }
-  };
-
-  const passwordChecks = {
-    length: newPassword.length >= 8,
-    uppercase: /[A-Z]/.test(newPassword),
-    lowercase: /[a-z]/.test(newPassword),
-    number: /[0-9]/.test(newPassword)
   };
 
   return (
@@ -103,17 +113,63 @@ const ResetPassword = () => {
             />
           </div>
 
+          {/* ✅ New Password with live strength checker */}
           <div className="form-group">
             <label>New Password</label>
             <input
               type="password"
               value={newPassword}
-              onChange={(e) => setNewPassword(e.target.value)}
-              placeholder="At least 8 characters"
+              onChange={(e) => {
+                setNewPassword(e.target.value);
+                setShowChecks(true);
+              }}
+              onFocus={() => setShowChecks(true)}
+              placeholder="Create a strong password"
               required
             />
+
+            {/* Strength bar */}
+            {showChecks && newPassword.length > 0 && (
+              <div style={{ marginTop: '6px' }}>
+                <div style={{
+                  height: '4px',
+                  borderRadius: '2px',
+                  background: '#e0e0e0',
+                  overflow: 'hidden',
+                }}>
+                  <div style={{
+                    height: '100%',
+                    width: `${(Object.values(checks).filter(Boolean).length / 5) * 100}%`,
+                    background: strength.color,
+                    transition: 'width 0.3s ease, background 0.3s ease',
+                  }} />
+                </div>
+                <span style={{ fontSize: '0.75rem', color: strength.color, fontWeight: 600 }}>
+                  {strength.label}
+                </span>
+              </div>
+            )}
+
+            {/* Requirements checklist */}
+            {showChecks && (
+              <ul style={{ listStyle: 'none', padding: '8px 0 0 0', margin: 0, fontSize: '0.8rem' }}>
+                {checkItems.map(({ key, label }) => (
+                  <li key={key} style={{
+                    color: checks[key] ? '#27ae60' : '#888',
+                    display: 'flex',
+                    alignItems: 'center',
+                    gap: '6px',
+                    marginBottom: '3px',
+                  }}>
+                    <span style={{ fontSize: '0.9rem' }}>{checks[key] ? '✓' : '○'}</span>
+                    {label}
+                  </li>
+                ))}
+              </ul>
+            )}
           </div>
 
+          {/* Confirm Password */}
           <div className="form-group">
             <label>Confirm New Password</label>
             <input
@@ -123,49 +179,21 @@ const ResetPassword = () => {
               placeholder="Re-enter new password"
               required
             />
+            {/* Inline match indicator */}
+            {confirmPassword.length > 0 && (
+              <p style={{
+                fontSize: '0.78rem',
+                marginTop: '4px',
+                color: newPassword === confirmPassword ? '#27ae60' : '#e74c3c',
+              }}>
+                {newPassword === confirmPassword ? '✓ Passwords match' : '✗ Passwords do not match'}
+              </p>
+            )}
           </div>
-
-          <div className="password-requirements">
-            <p><strong>Password must contain:</strong></p>
-            <ul style={{ listStyle: 'none', padding: 0, margin: 0 }}>
-              <li style={{
-                color: passwordChecks.length ? '#28a745' : 'var(--text-gray)',
-                listStyle: 'none',
-                paddingLeft: 0,
-                marginBottom: '4px'
-              }}>
-                {passwordChecks.length ? '✅' : '○'} At least 8 characters
-              </li>
-              <li style={{
-                color: passwordChecks.uppercase ? '#28a745' : 'var(--text-gray)',
-                listStyle: 'none',
-                paddingLeft: 0,
-                marginBottom: '4px'
-              }}>
-                {passwordChecks.uppercase ? '✅' : '○'} One uppercase letter
-              </li>
-              <li style={{
-                color: passwordChecks.lowercase ? '#28a745' : 'var(--text-gray)',
-                listStyle: 'none',
-                paddingLeft: 0,
-                marginBottom: '4px'
-              }}>
-                {passwordChecks.lowercase ? '✅' : '○'} One lowercase letter
-              </li>
-              <li style={{
-                color: passwordChecks.number ? '#28a745' : 'var(--text-gray)',
-                listStyle: 'none',
-                paddingLeft: 0,
-                marginBottom: '4px'
-              }}>
-                {passwordChecks.number ? '✅' : '○'} One number
-              </li>
-            </ul>
-          </div>
-
 
           <button
-            type="submit"            className="btn btn-primary btn-block"
+            type="submit"
+            className="btn btn-primary btn-block"
             disabled={loading}
           >
             {loading ? 'Resetting...' : 'Reset Password'}
@@ -192,4 +220,3 @@ const ResetPassword = () => {
 };
 
 export default ResetPassword;
-
