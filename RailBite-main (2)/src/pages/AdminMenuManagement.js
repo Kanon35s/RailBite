@@ -128,7 +128,14 @@ const handleSubmit = async (e) => {
     available: item.available
   });
   setImageFile(null);
-  setImagePreview(item.image || '');
+  setImagePreview(
+  item.image
+    ? item.image.startsWith('/uploads/')
+      ? `http://localhost:5001${item.image}`
+      : item.image
+    : ''
+);
+
   setShowAddModal(true);
 };
 
