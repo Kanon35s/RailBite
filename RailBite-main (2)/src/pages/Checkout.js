@@ -259,16 +259,16 @@ const Checkout = () => {
                 <div className="form-row">
                   <div className="form-group">
                     <label>Full Name</label>
-                    <input type="text" name="fullName" value={contactInfo.fullName} onChange={handleContactChange} placeholder="John Doe" required />
+                    <input type="text" name="fullName" value={contactInfo.fullName} onChange={handleContactChange} placeholder="John Doe" required readOnly />
                   </div>
                   <div className="form-group">
                     <label>Email Address</label>
-                    <input type="email" name="email" value={contactInfo.email} onChange={handleContactChange} placeholder="john@example.com" required />
+                    <input type="email" name="email" value={contactInfo.email} onChange={handleContactChange} placeholder="john@example.com" required readOnly/>
                   </div>
                 </div>
                 <div className="form-group">
                   <label>Phone Number</label>
-                  <input type="tel" name="phone" value={contactInfo.phone} onChange={handleContactChange} placeholder="01712345678" required />
+                  <input type="tel" name="phone" value={contactInfo.phone} onChange={handleContactChange} placeholder="01712345678" required readOnly />
                 </div>
               </form>
             </div>
