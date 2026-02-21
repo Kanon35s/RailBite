@@ -275,10 +275,18 @@ const handleImageChange = (e) => {
                     <tr key={item._id}>
                       <td>
                         <img
-                          src={item.image || '/images/placeholder.jpg'}
-                          alt={item.name}
-                          className="admin-table-img"
-                        />
+  src={
+    item.image
+      ? item.image.startsWith('/uploads/')
+        ? `http://localhost:5001${item.image}`
+        : item.image
+      : '/images/placeholder.jpg'
+  }
+  alt={item.name}
+  className="admin-table-img"
+  style={{ width: '60px', height: '50px', objectFit: 'cover', borderRadius: '6px' }}
+/>
+
                       </td>
                       <td>
                         <div>
