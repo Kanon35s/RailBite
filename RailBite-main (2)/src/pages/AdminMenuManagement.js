@@ -17,10 +17,13 @@ const AdminMenuManagement = () => {
     price: '',
     description: '',
     category: 'breakfast',
+    image: '',
     available: true
   });
+
   const [imageFile, setImageFile] = useState(null);
-  const [imagePreview, setImagePreview] = useState('');
+const [imagePreview, setImagePreview] = useState('');
+
 
   const categories = useMemo(() => [
     'breakfast', 'lunch', 'dinner',
@@ -69,64 +72,65 @@ const AdminMenuManagement = () => {
     });
   };
 
-  const handleSubmit = async (e) => {
-    e.preventDefault();
-    setSaving(true);
+ 
+const handleSubmit = async (e) => {
+  e.preventDefault();
+  setSaving(true);
+  try {
+    const token = localStorage.getItem('railbite_token');
 
-    try {
-      const token = localStorage.getItem('railbite_token');
-
-      const fd = new FormData();
-      fd.append('name', formData.name);
-      fd.append('price', parseFloat(formData.price));
-      fd.append('description', formData.description);
-      fd.append('category', formData.category);
-      fd.append('available', formData.available);
-      if (imageFile) {
-        fd.append('image', imageFile);
-      }
-
-      if (editingItem) {
-        // Update existing item
-        const res = await menuAPI.update(editingItem._id, fd, token);
-        if (res.data.success) {
-          setMenuItems(prev =>
-            prev.map(item =>
-              item._id === editingItem._id ? res.data.data : item
-            )
-          );
-          alert('Menu item updated successfully.');
-        }
-      } else {
-        // Create new item
-        const res = await menuAPI.create(fd, token);
-        if (res.data.success) {
-          setMenuItems(prev => [res.data.data, ...prev]);
-          alert('Menu item added successfully.');
-        }
-      }
-
-      resetForm();
-    } catch (err) {
-      alert(err.response?.data?.message || err.message || 'Failed to save item');
-    } finally {
-      setSaving(false);
+    const fd = new FormData();
+    fd.append('name', formData.name);
+    fd.append('price', parseFloat(formData.price));
+    fd.append('description', formData.description);
+    fd.append('category', formData.category);
+    fd.append('available', formData.available);
+    if (imageFile) {
+      fd.append('image', imageFile);
+    } else if (formData.image) {
+      // Keep existing image URL if no new file selected
+      fd.append('image', formData.image);
     }
-  };
+
+    if (editingItem) {
+      const res = await menuAPI.update(editingItem._id, fd, token);
+      if (res.data.success) {
+        setMenuItems(prev =>
+          prev.map(item =>
+            item._id === editingItem._id ? res.data.data : item
+          )
+        );
+        alert('Menu item updated successfully.');
+      }
+    } else {
+      const res = await menuAPI.create(fd, token);
+      if (res.data.success) {
+        setMenuItems(prev => [res.data.data, ...prev]);
+        alert('Menu item added successfully.');
+      }
+    }
+    resetForm();
+  } catch (err) {
+    alert(err.response?.data?.message || err.message || 'Failed to save item');
+  } finally {
+    setSaving(false);
+  }
+};
 
   const handleEdit = (item) => {
-    setEditingItem(item);
-    setFormData({
-      name: item.name,
-      price: item.price,
-      description: item.description,
-      category: item.category,
-      available: item.available
-    });
-    setImageFile(null);
-    setImagePreview(item.image || '');
-    setShowAddModal(true);
-  };
+  setEditingItem(item);
+  setFormData({
+    name: item.name,
+    price: item.price,
+    description: item.description,
+    category: item.category,
+    image: item.image,
+    available: item.available
+  });
+  setImageFile(null);
+  setImagePreview(item.image || '');
+  setShowAddModal(true);
+};
 
   const handleDelete = async (item) => {
     if (!window.confirm(`Delete "${item.name}"? This cannot be undone.`)) return;
@@ -157,19 +161,28 @@ const AdminMenuManagement = () => {
     }
   };
 
-  const resetForm = () => {
-    setFormData({
-      name: '',
-      price: '',
-      description: '',
-      category: 'breakfast',
-      available: true
-    });
-    setImageFile(null);
-    setImagePreview('');
-    setEditingItem(null);
-    setShowAddModal(false);
-  };
+ const resetForm = () => {
+  setFormData({
+    name: '',
+    price: '',
+    description: '',
+    category: 'breakfast',
+    image: '',
+    available: true
+  });
+  setImageFile(null);
+  setImagePreview('');
+  setEditingItem(null);
+  setShowAddModal(false);
+};
+
+const handleImageChange = (e) => {
+  const file = e.target.files[0];
+  if (!file) return;
+  setImageFile(file);
+  setImagePreview(URL.createObjectURL(file));
+};
+
 
   if (loading) {
     return (
@@ -192,7 +205,7 @@ const AdminMenuManagement = () => {
         <div className="admin-content">
           <div className="admin-header">
             <h1>Menu Management</h1>
-            <p className="admin-error-text">Error: {error}</p>
+            <p style={{ color: 'red' }}>Error: {error}</p>
             <button className="admin-btn-primary" onClick={loadMenuItems}>
               Retry
             </button>
@@ -262,13 +275,7 @@ const AdminMenuManagement = () => {
                     <tr key={item._id}>
                       <td>
                         <img
-                          src={
-                            item.image
-                              ? item.image.startsWith('/uploads')
-                                ? `http://localhost:5001${item.image}`
-                                : item.image
-                              : '/images/placeholder.jpg'
-                          }
+                          src={item.image || '/images/placeholder.jpg'}
                           alt={item.name}
                           className="admin-table-img"
                         />
@@ -311,7 +318,7 @@ const AdminMenuManagement = () => {
                   ))
                 ) : (
                   <tr>
-                    <td colSpan="6" className="admin-empty-cell">
+                    <td colSpan="6" style={{ textAlign: 'center', padding: '20px' }}>
                       No menu items found
                     </td>
                   </tr>
@@ -384,29 +391,30 @@ const AdminMenuManagement = () => {
                   />
                 </div>
 
-                <div className="admin-form-group">
-                  <label>Image</label>
-                  <input
-                    type="file"
-                    accept="image/jpeg,image/png,image/gif,image/webp"
-                    className="admin-file-input"
-                    onChange={(e) => {
-                      const file = e.target.files[0];
-                      if (file) {
-                        setImageFile(file);
-                        setImagePreview(URL.createObjectURL(file));
-                      }
-                    }}
-                  />
-                  {imagePreview && (
-                    <div className="admin-image-preview">
-                      <img
-                        src={imagePreview.startsWith('blob:') ? imagePreview : `http://localhost:5001${imagePreview}`}
-                        alt="Preview"
-                      />
-                    </div>
-                  )}
-                </div>
+               <div className="admin-form-group">
+  <label>Item Image</label>
+  <input
+    type="file"
+    accept="image/jpeg,image/jpg,image/png,image/webp"
+    onChange={handleImageChange}
+  />
+  {imagePreview && (
+    <div style={{ marginTop: '10px' }}>
+      <img
+        src={imagePreview}
+        alt="Preview"
+        style={{
+          width: '120px',
+          height: '90px',
+          objectFit: 'cover',
+          borderRadius: '8px',
+          border: '1px solid #444'
+        }}
+      />
+    </div>
+  )}
+</div>
+
 
                 <div className="admin-form-group">
                   <label className="admin-checkbox-label">
@@ -426,8 +434,7 @@ const AdminMenuManagement = () => {
                     className="admin-btn-secondary"
                     onClick={resetForm}
                   >
-                    Cancel
-                  </button>
+                                      </button>
                   <button
                     type="submit"
                     className="admin-btn-primary"
@@ -436,8 +443,8 @@ const AdminMenuManagement = () => {
                     {saving
                       ? 'Saving...'
                       : editingItem
-                        ? 'Update Item'
-                        : 'Add Item'}
+                      ? 'Update Item'
+                      : 'Add Item'}
                   </button>
                 </div>
               </form>
